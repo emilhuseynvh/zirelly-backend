@@ -1,0 +1,85 @@
+<?php
+
+use App\Http\Controllers\Api\AboutController;
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\BasketController;
+use App\Http\Controllers\Api\BlogController;
+use App\Http\Controllers\Api\ContactController;
+use App\Http\Controllers\Api\ContactMessageController;
+use App\Http\Controllers\Api\HomeController;
+use App\Http\Controllers\Api\LanguageController;
+use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\Api\ProductReviewController;
+use App\Http\Controllers\Api\ProductsPageController;
+use App\Http\Controllers\Api\ProfileController;
+use App\Http\Controllers\Api\RecentViewController;
+use App\Http\Controllers\Api\UploadController;
+use Illuminate\Support\Facades\Route;
+
+Route::prefix('auth')->group(function () {
+    Route::post('register', [AuthController::class, 'register'])->middleware('throttle:10,1');
+    Route::post('login', [AuthController::class, 'login'])->middleware('throttle:10,1');
+
+    Route::get('verify-email/{id}/{hash}', [AuthController::class, 'verifyEmail'])
+        ->middleware(['signed', 'throttle:6,1'])
+        ->name('verification.verify');
+
+    Route::post('resend-verification', [AuthController::class, 'resendVerification'])
+        ->middleware('throttle:6,1');
+
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('verify-token', [AuthController::class, 'verifyToken']);
+        Route::post('logout', [AuthController::class, 'logout']);
+        Route::get('me', [ProfileController::class, 'show']);
+        Route::put('profile', [ProfileController::class, 'update']);
+    });
+});
+
+Route::apiResource('languages', LanguageController::class)->only(['index', 'show']);
+
+Route::get('blogs/slug/{slug}', [BlogController::class, 'showBySlug']);
+Route::apiResource('blogs', BlogController::class)->only(['index', 'show']);
+
+Route::get('home', [HomeController::class, 'show']);
+Route::get('about', [AboutController::class, 'show']);
+Route::get('contact', [ContactController::class, 'show']);
+Route::get('products-page', [ProductsPageController::class, 'show']);
+Route::post('contact/messages', [ContactMessageController::class, 'store'])->middleware('throttle:5,1');
+
+Route::get('products/slug/{slug}', [ProductController::class, 'showBySlug']);
+Route::apiResource('products', ProductController::class)->only(['index', 'show']);
+Route::get('products/{product}/reviews', [ProductReviewController::class, 'index']);
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('products/{product}/reviews', [ProductReviewController::class, 'store']);
+    Route::put('reviews/{review}', [ProductReviewController::class, 'update']);
+    Route::delete('reviews/{review}', [ProductReviewController::class, 'destroy']);
+
+    Route::get('recent-views', [RecentViewController::class, 'index']);
+
+    Route::prefix('basket')->group(function () {
+        Route::get('/', [BasketController::class, 'index']);
+        Route::delete('/', [BasketController::class, 'clear']);
+        Route::post('items', [BasketController::class, 'storeItem']);
+        Route::put('items/{item}', [BasketController::class, 'updateItem']);
+        Route::delete('items/{item}', [BasketController::class, 'destroyItem']);
+    });
+});
+
+Route::middleware(['auth:sanctum', 'admin'])->group(function () {
+    Route::apiResource('languages', LanguageController::class)->except(['index', 'show']);
+    Route::apiResource('blogs', BlogController::class)->except(['index', 'show']);
+    Route::apiResource('products', ProductController::class)->except(['index', 'show']);
+
+    Route::put('home', [HomeController::class, 'update']);
+    Route::put('about', [AboutController::class, 'update']);
+    Route::put('contact', [ContactController::class, 'update']);
+    Route::put('products-page', [ProductsPageController::class, 'update']);
+
+    Route::get('contact/messages', [ContactMessageController::class, 'index']);
+    Route::put('contact/messages/{message}/read', [ContactMessageController::class, 'markRead']);
+    Route::delete('contact/messages/{message}', [ContactMessageController::class, 'destroy']);
+
+    Route::post('uploads', [UploadController::class, 'store']);
+    Route::delete('uploads/{upload}', [UploadController::class, 'destroy']);
+});
