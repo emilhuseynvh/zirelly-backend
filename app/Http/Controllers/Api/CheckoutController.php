@@ -7,11 +7,14 @@ use App\Enums\TransactionStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CheckoutRequest;
 use App\Http\Resources\OrderResource;
+use App\Mail\OrderReceiptMail;
 use App\Models\Order;
 use App\Models\Promocode;
 use App\Services\PaymentService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class CheckoutController extends Controller
 {
@@ -81,7 +84,18 @@ class CheckoutController extends Controller
             $user->basketItems()->delete();
         }
 
-        $order->load(['items', 'transactions']);
+        $order->load(['user', 'items', 'transactions']);
+
+        if ($order->status === OrderStatus::Paid) {
+            try {
+                Mail::to($user->email)->send(new OrderReceiptMail($order));
+            } catch (\Throwable $e) {
+                Log::warning('Order receipt email failed', [
+                    'order_id' => $order->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
 
         return (new OrderResource($order))->response()->setStatusCode(201);
     }
