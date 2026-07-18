@@ -1,7 +1,11 @@
 <?php
 
 use App\Http\Controllers\Api\AboutController;
+use App\Http\Controllers\Api\AdminOrderController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CheckoutController;
+use App\Http\Controllers\Api\OrderController;
+use App\Http\Controllers\Api\PromocodeController;
 use App\Http\Controllers\Api\BasketController;
 use App\Http\Controllers\Api\BlogController;
 use App\Http\Controllers\Api\ContactController;
@@ -64,6 +68,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('items/{item}', [BasketController::class, 'updateItem']);
         Route::delete('items/{item}', [BasketController::class, 'destroyItem']);
     });
+
+    Route::post('checkout', [CheckoutController::class, 'store'])->middleware('throttle:10,1');
+    Route::post('promocodes/preview', [PromocodeController::class, 'preview'])->middleware('throttle:20,1');
+    Route::get('orders', [OrderController::class, 'index']);
+    Route::get('orders/{order}', [OrderController::class, 'show'])->whereNumber('order');
 });
 
 Route::middleware(['auth:sanctum', 'admin'])->group(function () {
@@ -82,4 +91,11 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
 
     Route::post('uploads', [UploadController::class, 'store']);
     Route::delete('uploads/{upload}', [UploadController::class, 'destroy']);
+
+    Route::apiResource('promocodes', PromocodeController::class);
+
+    Route::get('admin/orders/stats', [AdminOrderController::class, 'stats']);
+    Route::get('admin/orders', [AdminOrderController::class, 'index']);
+    Route::get('admin/orders/{order}', [AdminOrderController::class, 'show'])->whereNumber('order');
+    Route::put('admin/orders/{order}/status', [AdminOrderController::class, 'updateStatus']);
 });
