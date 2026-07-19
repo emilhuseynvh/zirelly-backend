@@ -13,7 +13,7 @@ class ProductsPageResource extends JsonResource
             'meta_title' => $this->translate('meta_title'),
             'meta_description' => $this->translate('meta_description'),
             'products_title' => $this->translate('products_title'),
-            'slides' => UploadResource::collection($this->whenLoaded('slides')),
+            'slides' => ProductsPageSlideResource::collection($this->whenLoaded('slides')),
             'side_image' => new UploadResource($this->whenLoaded('sideImage')),
             'updated_at' => $this->updated_at?->toIso8601String(),
             'translations' => $this->when(

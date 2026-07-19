@@ -19,8 +19,10 @@ class UpdateProductsPageRequest extends FormRequest
 
         $rules = [
             'side_image_id' => ['nullable', 'integer', Rule::exists('uploads', 'id')],
-            'slide_image_ids' => ['sometimes', 'array'],
-            'slide_image_ids.*' => ['integer', 'distinct', Rule::exists('uploads', 'id')],
+            'slides' => ['sometimes', 'array'],
+            'slides.*.image_id' => ['nullable', 'integer', Rule::exists('uploads', 'id')],
+            'slides.*.link' => ['nullable', 'string', 'max:2000'],
+            'slides.*.translations' => ['sometimes', 'array:'.$codes->implode(',')],
             'translations' => ['sometimes', 'array:'.$codes->implode(',')],
         ];
 
@@ -29,6 +31,10 @@ class UpdateProductsPageRequest extends FormRequest
             $rules["translations.{$code}.meta_title"] = ['nullable', 'string', 'max:255'];
             $rules["translations.{$code}.meta_description"] = ['nullable', 'string', 'max:500'];
             $rules["translations.{$code}.products_title"] = ['nullable', 'string', 'max:255'];
+
+            $rules["slides.*.translations.{$code}"] = ['sometimes', 'array'];
+            $rules["slides.*.translations.{$code}.title"] = ['nullable', 'string', 'max:500'];
+            $rules["slides.*.translations.{$code}.button_text"] = ['nullable', 'string', 'max:100'];
         }
 
         return $rules;

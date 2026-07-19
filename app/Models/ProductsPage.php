@@ -5,7 +5,7 @@ namespace App\Models;
 use App\Models\Concerns\HasTranslations;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ProductsPage extends Model
 {
@@ -31,10 +31,8 @@ class ProductsPage extends Model
         return $this->belongsTo(Upload::class, 'side_image_id');
     }
 
-    public function slides(): BelongsToMany
+    public function slides(): HasMany
     {
-        return $this->belongsToMany(Upload::class, 'products_page_upload')
-            ->withPivot('position')
-            ->orderByPivot('position');
+        return $this->hasMany(ProductsPageSlide::class)->orderBy('position');
     }
 }

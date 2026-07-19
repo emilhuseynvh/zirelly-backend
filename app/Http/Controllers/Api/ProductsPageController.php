@@ -29,12 +29,18 @@ class ProductsPageController extends Controller
                 $page->syncTranslations($data['translations']);
             }
 
-            if (array_key_exists('slide_image_ids', $data)) {
-                $page->slides()->sync(
-                    collect($data['slide_image_ids'] ?? [])
-                        ->mapWithKeys(fn (int $id, int $index) => [$id => ['position' => $index]])
-                        ->all(),
-                );
+            if (array_key_exists('slides', $data)) {
+                $page->slides()->get()->each->delete();
+
+                foreach ($data['slides'] ?? [] as $index => $row) {
+                    $slide = $page->slides()->create([
+                        'image_id' => $row['image_id'] ?? null,
+                        'link' => $row['link'] ?? null,
+                        'position' => $index,
+                    ]);
+
+                    $slide->syncTranslations($row['translations'] ?? []);
+                }
             }
         });
 
@@ -43,6 +49,11 @@ class ProductsPageController extends Controller
 
     protected function loadRelations(ProductsPage $page): ProductsPage
     {
-        return $page->load(['translations', 'slides', 'sideImage']);
+        return $page->load([
+            'translations',
+            'slides.translations',
+            'slides.image',
+            'sideImage',
+        ]);
     }
 }
