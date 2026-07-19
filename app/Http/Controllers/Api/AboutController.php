@@ -46,5 +46,5 @@ class AboutController extends Controller
     protected function loadRelations(AboutPage $page): AboutPage
     {
         return $page->load(['translations', 'heroImage', 'sectionImage', 'items.translations']);
-    }
+    } 
 }
