@@ -27,6 +27,7 @@ class Product extends Model
         'meta_title',
         'meta_description',
         'description',
+        'pro_tip',
     ];
 
     protected function casts(): array
@@ -43,6 +44,7 @@ class Product extends Model
     {
         static::deleting(function (self $product) {
             $product->features()->get()->each->delete();
+            $product->howToUseSteps()->get()->each->delete();
         });
     }
 
@@ -56,6 +58,11 @@ class Product extends Model
     public function features(): HasMany
     {
         return $this->hasMany(ProductFeature::class)->orderBy('position');
+    }
+
+    public function howToUseSteps(): HasMany
+    {
+        return $this->hasMany(ProductHowToUseStep::class)->orderBy('position');
     }
 
     public function reviews(): HasMany

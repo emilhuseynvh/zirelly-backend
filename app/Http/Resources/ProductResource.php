@@ -21,8 +21,10 @@ class ProductResource extends JsonResource
             'discount_type' => $this->discount_type?->value,
             'final_price' => $this->finalPrice(),
             'is_active' => $this->is_active,
+            'pro_tip' => $this->translate('pro_tip'),
             'images' => UploadResource::collection($this->whenLoaded('images')),
             'features' => ProductFeatureResource::collection($this->whenLoaded('features')),
+            'how_to_use' => ProductHowToUseStepResource::collection($this->whenLoaded('howToUseSteps')),
             'rating' => [
                 'average' => round((float) ($this->reviews_avg_rating ?? 0), 1),
                 'count' => (int) ($this->reviews_count ?? 0),

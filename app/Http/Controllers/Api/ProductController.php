@@ -45,6 +45,7 @@ class ProductController extends Controller
             $product->syncTranslations($data['translations']);
             $this->syncImages($product, $data['image_ids'] ?? []);
             $this->syncFeatures($product, $data['features'] ?? null);
+            $this->syncHowToUseSteps($product, $data['how_to_use'] ?? null);
 
             return $product;
         });
@@ -91,6 +92,10 @@ class ProductController extends Controller
             if (array_key_exists('features', $data)) {
                 $this->syncFeatures($product, $data['features'] ?? []);
             }
+
+            if (array_key_exists('how_to_use', $data)) {
+                $this->syncHowToUseSteps($product, $data['how_to_use'] ?? []);
+            }
         });
 
         return new ProductResource($this->loadRelations($product));
@@ -127,10 +132,25 @@ class ProductController extends Controller
         }
     }
 
+    protected function syncHowToUseSteps(Product $product, ?array $steps): void
+    {
+        if ($steps === null) {
+            return;
+        }
+
+        $product->howToUseSteps()->get()->each->delete();
+
+        foreach ($steps as $index => $step) {
+            $product->howToUseSteps()
+                ->create(['position' => $index])
+                ->syncTranslations($step['translations']);
+        }
+    }
+
     protected function loadRelations(Product $product): Product
     {
         return $product
-            ->load(['translations', 'images', 'features.translations'])
+            ->load(['translations', 'images', 'features.translations', 'howToUseSteps.translations'])
             ->loadAvg('reviews', 'rating')
             ->loadCount('reviews');
     }

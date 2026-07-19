@@ -13,4 +13,5 @@ return [
     'logged_out' => 'Logged out.',
     'email_verified' => 'Email verified successfully.',
     'verification_sent' => 'If the email exists and is unverified, a verification link has been sent.',
+    'already_reviewed' => 'You have already reviewed this product.',
 ];

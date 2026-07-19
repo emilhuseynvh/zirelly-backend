@@ -13,4 +13,5 @@ return [
     'logged_out' => 'Hesabdan çıxış edildi.',
     'email_verified' => 'E-poçt uğurla təsdiqləndi.',
     'verification_sent' => 'Əgər e-poçt mövcuddursa və təsdiqlənməyibsə, təsdiq linki göndərildi.',
+    'already_reviewed' => 'Bu məhsula artıq rəy yazmısınız.',
 ];

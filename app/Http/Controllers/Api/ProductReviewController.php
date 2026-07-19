@@ -33,7 +33,7 @@ class ProductReviewController extends Controller
 
         if ($alreadyReviewed) {
             throw ValidationException::withMessages([
-                'product' => ['You have already reviewed this product.'],
+                'product' => [__('messages.already_reviewed')],
             ]);
         }
 

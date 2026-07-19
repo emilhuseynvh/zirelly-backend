@@ -35,6 +35,8 @@ class StoreProductRequest extends FormRequest
             'translations' => ['required', 'array:'.$codes->implode(',')],
             'features' => ['sometimes', 'array'],
             'features.*.translations' => ['required', 'array:'.$codes->implode(',')],
+            'how_to_use' => ['sometimes', 'array'],
+            'how_to_use.*.translations' => ['required', 'array:'.$codes->implode(',')],
         ];
 
         foreach ($codes as $code) {
@@ -45,10 +47,15 @@ class StoreProductRequest extends FormRequest
             $rules["translations.{$code}.meta_title"] = ['nullable', 'string', 'max:255'];
             $rules["translations.{$code}.meta_description"] = ['nullable', 'string', 'max:500'];
             $rules["translations.{$code}.description"] = ['nullable', 'string'];
+            $rules["translations.{$code}.pro_tip"] = ['nullable', 'string', 'max:1000'];
 
             $rules["features.*.translations.{$code}"] = [$isDefault ? 'required' : 'sometimes', 'array'];
             $rules["features.*.translations.{$code}.name"] = [$isDefault ? 'required' : 'nullable', 'string', 'max:255'];
             $rules["features.*.translations.{$code}.value"] = [$isDefault ? 'required' : 'nullable', 'string', 'max:1000'];
+
+            $rules["how_to_use.*.translations.{$code}"] = ['sometimes', 'array'];
+            $rules["how_to_use.*.translations.{$code}.title"] = ['nullable', 'string', 'max:255'];
+            $rules["how_to_use.*.translations.{$code}.description"] = ['nullable', 'string', 'max:1000'];
         }
 
         return $rules;
