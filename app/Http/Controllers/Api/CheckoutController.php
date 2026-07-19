@@ -28,7 +28,7 @@ class CheckoutController extends Controller
             ->filter(fn ($item) => $item->product !== null && $item->product->is_active);
 
         if ($basketItems->isEmpty()) {
-            return response()->json(['message' => 'Your basket is empty.'], 422);
+            return response()->json(['message' => __('messages.basket_empty')], 422);
         }
 
         $subtotal = round($basketItems->sum(fn ($item) => $item->lineTotal()), 2);
@@ -40,7 +40,7 @@ class CheckoutController extends Controller
             $promocode = Promocode::where('code', $request->input('promocode'))->first();
 
             if ($promocode === null) {
-                return response()->json(['message' => 'Promocode not found.'], 422);
+                return response()->json(['message' => __('messages.promocode_not_found')], 422);
             }
 
             if (($error = $promocode->validateFor($user)) !== null) {

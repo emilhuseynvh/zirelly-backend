@@ -67,7 +67,7 @@ class PromocodeController extends Controller
         $promocode = Promocode::where('code', $code)->first();
 
         if ($promocode === null) {
-            return response()->json(['valid' => false, 'message' => 'Promocode not found.'], 422);
+            return response()->json(['valid' => false, 'message' => __('messages.promocode_not_found')], 422);
         }
 
         if (($error = $promocode->validateFor($user)) !== null) {

@@ -47,7 +47,7 @@ class AuthController extends Controller
     {
         $request->user()->currentAccessToken()->delete();
 
-        return response()->json(['message' => 'Logged out.']);
+        return response()->json(['message' => __('messages.logged_out')]);
     }
 
     public function verifyToken(Request $request): JsonResponse
@@ -71,7 +71,7 @@ class AuthController extends Controller
             event(new Verified($user));
         }
 
-        return response()->json(['message' => 'Email verified successfully.']);
+        return response()->json(['message' => __('messages.email_verified')]);
     }
 
     public function resendVerification(Request $request): JsonResponse
@@ -85,7 +85,7 @@ class AuthController extends Controller
         }
 
         return response()->json([
-            'message' => 'If the email exists and is unverified, a verification link has been sent.',
+            'message' => __('messages.verification_sent'),
         ]);
     }
 }

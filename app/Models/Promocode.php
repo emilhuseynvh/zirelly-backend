@@ -86,12 +86,12 @@ class Promocode extends Model
     public static function errorMessage(string $code): string
     {
         return match ($code) {
-            'inactive' => 'This promocode is no longer active.',
-            'not_started' => 'This promocode is not active yet.',
-            'expired' => 'This promocode has expired.',
-            'first_order_only' => 'This promocode is only valid for your first order.',
-            'already_used' => 'You have already used this promocode.',
-            default => 'This promocode cannot be applied.',
+            'inactive' => __('messages.promocode_inactive'),
+            'not_started' => __('messages.promocode_not_started'),
+            'expired' => __('messages.promocode_expired'),
+            'first_order_only' => __('messages.promocode_first_order_only'),
+            'already_used' => __('messages.promocode_already_used'),
+            default => __('messages.promocode_invalid'),
         };
     }
 }
