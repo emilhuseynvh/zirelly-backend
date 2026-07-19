@@ -26,6 +26,7 @@ class ContactMessageController extends Controller
     {
         $messages = ContactMessage::query()
             ->when($request->boolean('unread'), fn ($q) => $q->where('is_read', false))
+            ->when($request->filled('subject'), fn ($q) => $q->where('subject', $request->input('subject')))
             ->latest('id')
             ->paginate($request->integer('per_page', 15));
 
