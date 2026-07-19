@@ -19,11 +19,10 @@ class AuthController extends Controller
     public function register(RegisterRequest $request): JsonResponse
     {
         $user = User::create($request->validated());
-
-        event(new Registered($user));
+        $user->markEmailAsVerified();
 
         return response()->json([
-            'message' => 'Registered successfully. Please verify your email address.',
+            'token' => $user->createToken('api')->plainTextToken,
             'user' => new UserResource($user),
         ], 201);
     }
@@ -36,12 +35,6 @@ class AuthController extends Controller
             throw ValidationException::withMessages([
                 'email' => [__('auth.failed')],
             ]);
-        }
-
-        if (! $user->hasVerifiedEmail()) {
-            return response()->json([
-                'message' => 'Your email address is not verified.',
-            ], 403);
         }
 
         return response()->json([
