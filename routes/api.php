@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\ContactController;
 use App\Http\Controllers\Api\ContactMessageController;
 use App\Http\Controllers\Api\HomeController;
 use App\Http\Controllers\Api\LanguageController;
+use App\Http\Controllers\Api\PopupController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\ProductReviewController;
 use App\Http\Controllers\Api\ProductsPageController;
@@ -48,6 +49,7 @@ Route::get('home', [HomeController::class, 'show']);
 Route::get('about', [AboutController::class, 'show']);
 Route::get('contact', [ContactController::class, 'show']);
 Route::get('products-page', [ProductsPageController::class, 'show']);
+Route::get('popup', [PopupController::class, 'show']);
 Route::post('contact/messages', [ContactMessageController::class, 'store'])->middleware('throttle:5,1');
 
 Route::get('products/slug/{slug}', [ProductController::class, 'showBySlug']);
@@ -84,6 +86,7 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::put('about', [AboutController::class, 'update']);
     Route::put('contact', [ContactController::class, 'update']);
     Route::put('products-page', [ProductsPageController::class, 'update']);
+    Route::put('popup', [PopupController::class, 'update']);
 
     Route::get('contact/messages', [ContactMessageController::class, 'index']);
     Route::put('contact/messages/{message}/read', [ContactMessageController::class, 'markRead']);
