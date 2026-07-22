@@ -25,12 +25,10 @@ Route::prefix('auth')->group(function () {
     Route::post('register', [AuthController::class, 'register'])->middleware('throttle:10,1');
     Route::post('login', [AuthController::class, 'login'])->middleware('throttle:10,1');
 
-    Route::get('verify-email/{id}/{hash}', [AuthController::class, 'verifyEmail'])
-        ->middleware(['signed', 'throttle:6,1'])
-        ->name('verification.verify');
-
-    Route::post('resend-verification', [AuthController::class, 'resendVerification'])
-        ->middleware('throttle:6,1');
+    Route::post('verify-registration', [AuthController::class, 'verifyRegistration'])->middleware('throttle:10,1');
+    Route::post('resend-otp', [AuthController::class, 'resendOtp'])->middleware('throttle:6,1');
+    Route::post('forgot-password', [AuthController::class, 'forgotPassword'])->middleware('throttle:6,1');
+    Route::post('reset-password', [AuthController::class, 'resetPassword'])->middleware('throttle:10,1');
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('verify-token', [AuthController::class, 'verifyToken']);

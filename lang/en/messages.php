@@ -14,4 +14,7 @@ return [
     'email_verified' => 'Email verified successfully.',
     'verification_sent' => 'If the email exists and is unverified, a verification link has been sent.',
     'already_reviewed' => 'You have already reviewed this product.',
+    'otp_sent' => 'A code has been sent to your email.',
+    'otp_invalid' => 'The code is invalid or has expired.',
+    'email_unverified' => 'Email not verified. Enter the code.',
 ];

@@ -14,4 +14,7 @@ return [
     'email_verified' => 'E-poçt uğurla təsdiqləndi.',
     'verification_sent' => 'Əgər e-poçt mövcuddursa və təsdiqlənməyibsə, təsdiq linki göndərildi.',
     'already_reviewed' => 'Bu məhsula artıq rəy yazmısınız.',
+    'otp_sent' => 'Kod e-poçtunuza göndərildi.',
+    'otp_invalid' => 'Kod yanlışdır və ya vaxtı bitib.',
+    'email_unverified' => 'E-poçt təsdiqlənməyib. Kodu daxil edin.',
 ];

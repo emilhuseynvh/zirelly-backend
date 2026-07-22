@@ -18,9 +18,9 @@ class RegisterRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:100'],
             'surname' => ['required', 'string', 'max:100'],
-            'phone' => ['required', 'string', 'max:20', 'regex:/^\+?[0-9]{7,15}$/', Rule::unique('users', 'phone')],
+            'phone' => ['required', 'string', 'max:20', 'regex:/^\+?[0-9]{7,15}$/', Rule::unique('users', 'phone')->whereNotNull('email_verified_at')],
             'birth_date' => ['required', 'date', 'before:today'],
-            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users', 'email')],
+            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->whereNotNull('email_verified_at')],
             'password' => ['required', 'confirmed', Password::defaults()],
         ];
     }
