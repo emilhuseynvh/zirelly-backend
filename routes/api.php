@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\ContactController;
 use App\Http\Controllers\Api\ContactMessageController;
 use App\Http\Controllers\Api\HomeController;
 use App\Http\Controllers\Api\LanguageController;
+use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\PopupController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\ProductReviewController;
@@ -49,6 +50,14 @@ Route::get('contact', [ContactController::class, 'show']);
 Route::get('products-page', [ProductsPageController::class, 'show']);
 Route::get('popup', [PopupController::class, 'show']);
 Route::post('contact/messages', [ContactMessageController::class, 'store'])->middleware('throttle:5,1');
+
+Route::get('payments/united/return/{transaction}', [PaymentController::class, 'handleReturn'])
+    ->name('payments.united.return')
+    ->middleware('throttle:30,1')
+    ->whereNumber('transaction');
+Route::post('payments/united/webhook', [PaymentController::class, 'webhook'])
+    ->name('payments.united.webhook')
+    ->middleware('throttle:60,1');
 
 Route::get('products/slug/{slug}', [ProductController::class, 'showBySlug']);
 Route::apiResource('products', ProductController::class)->only(['index', 'show']);

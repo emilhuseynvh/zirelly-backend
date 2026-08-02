@@ -17,4 +17,5 @@ return [
     'otp_sent' => 'Kod e-poçtunuza göndərildi.',
     'otp_invalid' => 'Kod yanlışdır və ya vaxtı bitib.',
     'email_unverified' => 'E-poçt təsdiqlənməyib. Kodu daxil edin.',
+    'payment_init_failed' => 'Ödəniş sisteminə qoşulmaq mümkün olmadı. Zəhmət olmasa bir az sonra yenidən cəhd edin.',
 ];

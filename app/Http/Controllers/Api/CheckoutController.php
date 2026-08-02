@@ -3,18 +3,13 @@
 namespace App\Http\Controllers\Api;
 
 use App\Enums\OrderStatus;
-use App\Enums\TransactionStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CheckoutRequest;
 use App\Http\Resources\OrderResource;
-use App\Mail\OrderReceiptMail;
-use App\Models\Order;
 use App\Models\Promocode;
 use App\Services\PaymentService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 
 class CheckoutController extends Controller
 {
@@ -73,30 +68,17 @@ class CheckoutController extends Controller
             return $order;
         });
 
-        $transaction = $payments->charge($order);
-
-        if ($transaction->status === TransactionStatus::Success) {
-            $order->update([
-                'status' => OrderStatus::Paid,
-                'paid_at' => now(),
-            ]);
-
-            $user->basketItems()->delete();
+        try {
+            [, $paymentUrl] = $payments->initiate($order);
+        } catch (\Throwable $e) {
+            return response()->json(['message' => __('messages.payment_init_failed')], 502);
         }
 
         $order->load(['user', 'items', 'transactions']);
 
-        if ($order->status === OrderStatus::Paid) {
-            try {
-                Mail::to($user->email)->send(new OrderReceiptMail($order));
-            } catch (\Throwable $e) {
-                Log::warning('Order receipt email failed', [
-                    'order_id' => $order->id,
-                    'error' => $e->getMessage(),
-                ]);
-            }
-        }
-
-        return (new OrderResource($order))->response()->setStatusCode(201);
+        return (new OrderResource($order))
+            ->additional(['payment_url' => $paymentUrl])
+            ->response()
+            ->setStatusCode(201);
     }
 }

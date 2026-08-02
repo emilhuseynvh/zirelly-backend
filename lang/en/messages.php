@@ -17,4 +17,5 @@ return [
     'otp_sent' => 'A code has been sent to your email.',
     'otp_invalid' => 'The code is invalid or has expired.',
     'email_unverified' => 'Email not verified. Enter the code.',
+    'payment_init_failed' => 'Could not connect to the payment system. Please try again shortly.',
 ];

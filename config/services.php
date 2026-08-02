@@ -35,4 +35,20 @@ return [
         ],
     ],
 
+    'unitedpayment' => [
+        'base_url' => env('UNITEDPAYMENT_BASE_URL', 'https://test-vpos.unitedpayment.az'),
+        'email' => env('UNITEDPAYMENT_EMAIL'),
+        'password' => env('UNITEDPAYMENT_PASSWORD'),
+        'partner_id' => env('UNITEDPAYMENT_PARTNER_ID'),
+    ],
+
+    'telegram' => [
+        'bot_token' => env('TELEGRAM_BOT_TOKEN'),
+        'chat_id' => env('TELEGRAM_CHAT_ID'),
+    ],
+
+    'frontend' => [
+        'url' => env('FRONTEND_URL', 'http://localhost:3000'),
+    ],
+
 ];
