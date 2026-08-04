@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\ContactController;
 use App\Http\Controllers\Api\ContactMessageController;
 use App\Http\Controllers\Api\HomeController;
 use App\Http\Controllers\Api\LanguageController;
+use App\Http\Controllers\Api\LegalPageController;
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\PopupController;
 use App\Http\Controllers\Api\ProductController;
@@ -49,6 +50,7 @@ Route::get('about', [AboutController::class, 'show']);
 Route::get('contact', [ContactController::class, 'show']);
 Route::get('products-page', [ProductsPageController::class, 'show']);
 Route::get('popup', [PopupController::class, 'show']);
+Route::get('legal/{slug}', [LegalPageController::class, 'show']);
 Route::post('contact/messages', [ContactMessageController::class, 'store'])->middleware('throttle:5,1');
 
 Route::get('payments/united/return/{transaction}', [PaymentController::class, 'handleReturn'])
@@ -94,6 +96,7 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::put('contact', [ContactController::class, 'update']);
     Route::put('products-page', [ProductsPageController::class, 'update']);
     Route::put('popup', [PopupController::class, 'update']);
+    Route::put('legal/{slug}', [LegalPageController::class, 'update']);
 
     Route::get('contact/messages', [ContactMessageController::class, 'index']);
     Route::put('contact/messages/{message}/read', [ContactMessageController::class, 'markRead']);

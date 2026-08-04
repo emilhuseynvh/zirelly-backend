@@ -9,15 +9,21 @@ use App\Services\PaymentService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class PaymentController extends Controller
 {
     public function handleReturn(Request $request, Transaction $transaction, PaymentService $payments): RedirectResponse
     {
-        $expectedHash = (string) data_get($transaction->payload, 'return_token_hash');
-        $providedHash = hash('sha256', (string) $request->query('token'));
+        $frontendUrl = rtrim((string) config('services.frontend.url'), '/');
 
-        abort_unless($expectedHash !== '' && hash_equals($expectedHash, $providedHash), 404);
+        $providedToken = Str::before(trim((string) $request->query('token')), '?');
+        $expectedHash = (string) data_get($transaction->payload, 'return_token_hash');
+        $providedHash = hash('sha256', $providedToken);
+
+        if ($expectedHash === '' || ! hash_equals($expectedHash, $providedHash)) {
+            return redirect()->away($frontendUrl.'/payment/result?status=pending');
+        }
 
         $transaction = $payments->settle($transaction);
 
@@ -26,8 +32,6 @@ class PaymentController extends Controller
             TransactionStatus::Failed => 'failed',
             TransactionStatus::Pending => 'pending',
         };
-
-        $frontendUrl = rtrim((string) config('services.frontend.url'), '/');
 
         return redirect()->away(
             $frontendUrl.'/payment/result?'.http_build_query([
