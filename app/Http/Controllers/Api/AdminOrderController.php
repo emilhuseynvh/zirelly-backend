@@ -80,7 +80,7 @@ class AdminOrderController extends Controller
         $paid = Order::where('status', OrderStatus::Paid);
 
         $totals = [
-            'orders' => Order::count(),
+            'orders' => Order::where('status', '!=', OrderStatus::Cancelled)->count(),
             'paid_orders' => (clone $paid)->count(),
             'revenue' => round((float) (clone $paid)->sum('total'), 2),
             'discount_total' => round((float) (clone $paid)->sum('discount_amount'), 2),
@@ -92,6 +92,7 @@ class AdminOrderController extends Controller
             ->selectRaw('COUNT(*) as orders')
             ->selectRaw("SUM(CASE WHEN status = 'paid' THEN total ELSE 0 END) as revenue")
             ->where('created_at', '>=', $from)
+            ->where('status', '!=', OrderStatus::Cancelled)
             ->groupBy('date')
             ->orderBy('date')
             ->get()
