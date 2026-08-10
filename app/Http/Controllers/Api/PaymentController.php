@@ -22,7 +22,7 @@ class PaymentController extends Controller
         $providedHash = hash('sha256', $providedToken);
 
         if ($expectedHash === '' || ! hash_equals($expectedHash, $providedHash)) {
-            return redirect()->away($frontendUrl.'/payment/result?status=pending');
+            return redirect()->away($frontendUrl.'/odenis-neticesi?status=pending');
         }
 
         $transaction = $payments->settle($transaction);
@@ -34,7 +34,7 @@ class PaymentController extends Controller
         };
 
         return redirect()->away(
-            $frontendUrl.'/payment/result?'.http_build_query([
+            $frontendUrl.'/odenis-neticesi?'.http_build_query([
                 'order' => $transaction->order_id,
                 'status' => $status,
             ]),

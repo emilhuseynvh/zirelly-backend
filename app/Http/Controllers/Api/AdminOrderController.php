@@ -7,29 +7,104 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\OrderResource;
 use App\Models\Order;
 use App\Models\OrderItem;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AdminOrderController extends Controller
 {
     public function index(Request $request): AnonymousResourceCollection
+    {
+        $orders = $this->filteredQuery($request)
+            ->with('user')
+            ->withCount('items')
+            ->paginate($request->integer('per_page', 20));
+
+        return OrderResource::collection($orders);
+    }
+
+    public function export(Request $request): StreamedResponse
+    {
+        $orders = $this->filteredQuery($request)
+            ->with('user')
+            ->withCount('items')
+            ->get();
+
+        $statusLabels = [
+            'pending' => 'Gözləyir',
+            'paid' => 'Yeni sifariş',
+            'preparing' => 'Çatdırılmaya hazırlanır',
+            'shipped' => 'Çatdırılmaya verildi',
+            'delivered' => 'Çatdırıldı',
+            'cancelled' => 'Ləğv edilib',
+        ];
+
+        $filename = 'sifarisler-'.now()->format('Y-m-d-Hi').'.csv';
+
+        return response()->streamDownload(function () use ($orders, $statusLabels) {
+            $out = fopen('php://output', 'w');
+            fwrite($out, "\xEF\xBB\xBF");
+
+            fputcsv($out, [
+                'Sifariş №', 'Tarix', 'Müştəri', 'E-poçt', 'Telefon', 'Status',
+                'Məhsul sayı', 'Ara cəm', 'Endirim', 'Promokod', 'Cəmi', 'Ödəniş tarixi',
+            ]);
+
+            foreach ($orders as $order) {
+                fputcsv($out, [
+                    $order->id,
+                    $order->created_at?->format('d.m.Y H:i'),
+                    trim(($order->user?->name ?? '').' '.($order->user?->surname ?? '')),
+                    $order->user?->email,
+                    $order->user?->phone,
+                    $statusLabels[$order->status->value] ?? $order->status->value,
+                    $order->items_count,
+                    number_format((float) $order->subtotal, 2, '.', ''),
+                    number_format((float) $order->discount_amount, 2, '.', ''),
+                    $order->promocode_code,
+                    number_format((float) $order->total, 2, '.', ''),
+                    $order->paid_at?->format('d.m.Y H:i'),
+                ]);
+            }
+
+            fclose($out);
+        }, $filename, ['Content-Type' => 'text/csv; charset=UTF-8']);
+    }
+
+    protected function filteredQuery(Request $request): Builder
     {
         $request->validate([
             'status' => ['sometimes', Rule::enum(OrderStatus::class)],
             'search' => ['sometimes', 'string', 'max:100'],
             'from' => ['sometimes', 'date'],
             'to' => ['sometimes', 'date'],
+            'min_total' => ['sometimes', 'numeric', 'min:0'],
+            'max_total' => ['sometimes', 'numeric', 'min:0'],
+            'promocode' => ['sometimes', 'string', 'max:50'],
+            'sort' => ['sometimes', Rule::in(['id', 'total', 'created_at', 'paid_at'])],
+            'dir' => ['sometimes', Rule::in(['asc', 'desc'])],
+            'per_page' => ['sometimes', 'integer', 'min:5', 'max:100'],
         ]);
 
-        $orders = Order::query()
-            ->with('user')
-            ->withCount('items')
+        return Order::query()
             ->when($request->filled('status'), fn ($q) => $q->where('status', $request->input('status')))
             ->when($request->filled('from'), fn ($q) => $q->whereDate('created_at', '>=', $request->input('from')))
             ->when($request->filled('to'), fn ($q) => $q->whereDate('created_at', '<=', $request->input('to')))
+            ->when($request->filled('min_total'), fn ($q) => $q->where('total', '>=', $request->input('min_total')))
+            ->when($request->filled('max_total'), fn ($q) => $q->where('total', '<=', $request->input('max_total')))
+            ->when($request->filled('promocode'), function ($q) use ($request) {
+                $promocode = $request->input('promocode');
+
+                match ($promocode) {
+                    'any' => $q->whereNotNull('promocode_code'),
+                    'none' => $q->whereNull('promocode_code'),
+                    default => $q->where('promocode_code', 'like', "%{$promocode}%"),
+                };
+            })
             ->when($request->filled('search'), function ($q) use ($request) {
                 $search = $request->input('search');
 
@@ -39,14 +114,15 @@ class AdminOrderController extends Controller
                         ->orWhereHas('user', function ($q) use ($search) {
                             $q->where('email', 'like', "%{$search}%")
                                 ->orWhere('name', 'like', "%{$search}%")
-                                ->orWhere('surname', 'like', "%{$search}%");
+                                ->orWhere('surname', 'like', "%{$search}%")
+                                ->orWhere('phone', 'like', "%{$search}%");
                         });
                 });
             })
-            ->latest('id')
-            ->paginate(20);
-
-        return OrderResource::collection($orders);
+            ->orderBy(
+                $request->input('sort', 'id'),
+                $request->input('dir', 'desc'),
+            );
     }
 
     public function show(Order $order): OrderResource
@@ -77,7 +153,9 @@ class AdminOrderController extends Controller
         $days = (int) $request->input('days', 30);
         $from = now()->subDays($days - 1)->startOfDay();
 
-        $paid = Order::where('status', OrderStatus::Paid);
+        $paidStatuses = OrderStatus::paidLike();
+        $paid = Order::whereIn('status', $paidStatuses);
+        $paidList = implode(',', array_map(fn ($s) => "'{$s->value}'", $paidStatuses));
 
         $totals = [
             'orders' => Order::where('status', '!=', OrderStatus::Cancelled)->count(),
@@ -90,7 +168,7 @@ class AdminOrderController extends Controller
         $byDay = Order::query()
             ->selectRaw('DATE(created_at) as date')
             ->selectRaw('COUNT(*) as orders')
-            ->selectRaw("SUM(CASE WHEN status = 'paid' THEN total ELSE 0 END) as revenue")
+            ->selectRaw("SUM(CASE WHEN status IN ({$paidList}) THEN total ELSE 0 END) as revenue")
             ->where('created_at', '>=', $from)
             ->where('status', '!=', OrderStatus::Cancelled)
             ->groupBy('date')
@@ -113,7 +191,7 @@ class AdminOrderController extends Controller
 
         $topProducts = OrderItem::query()
             ->select('title', DB::raw('SUM(quantity) as quantity'), DB::raw('SUM(line_total) as revenue'))
-            ->whereHas('order', fn ($q) => $q->where('status', OrderStatus::Paid))
+            ->whereHas('order', fn ($q) => $q->whereIn('status', OrderStatus::paidLike()))
             ->groupBy('title')
             ->orderByDesc(DB::raw('SUM(line_total)'))
             ->limit(5)
