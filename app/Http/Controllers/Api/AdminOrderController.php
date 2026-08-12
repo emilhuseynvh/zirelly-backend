@@ -40,6 +40,7 @@ class AdminOrderController extends Controller
             'preparing' => 'Çatdırılmaya hazırlanır',
             'shipped' => 'Çatdırılmaya verildi',
             'delivered' => 'Çatdırıldı',
+            'returned' => 'Qaytarıldı',
             'cancelled' => 'Ləğv edilib',
         ];
 
