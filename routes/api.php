@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AboutController;
 use App\Http\Controllers\Api\AdminOrderController;
+use App\Http\Controllers\Api\AdminUserController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CheckoutController;
 use App\Http\Controllers\Api\OrderController;
@@ -107,6 +108,7 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
 
     Route::apiResource('promocodes', PromocodeController::class);
 
+    Route::get('admin/users', [AdminUserController::class, 'index']);
     Route::get('admin/orders/stats', [AdminOrderController::class, 'stats']);
     Route::get('admin/orders/export', [AdminOrderController::class, 'export']);
     Route::get('admin/orders', [AdminOrderController::class, 'index']);

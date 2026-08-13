@@ -19,6 +19,8 @@ class UserResource extends JsonResource
             'role' => $this->role->value,
             'email_verified' => $this->hasVerifiedEmail(),
             'created_at' => $this->created_at?->toIso8601String(),
+            'orders_count' => $this->whenCounted('orders'),
+            'orders_total' => $this->whenHas('orders_total', fn () => round((float) $this->orders_total, 2)),
         ];
     }
 }
