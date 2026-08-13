@@ -17,5 +17,6 @@ return [
     'otp_sent' => 'A code has been sent to your email.',
     'otp_invalid' => 'The code is invalid or has expired.',
     'email_unverified' => 'Email not verified. Enter the code.',
+    'phone_invalid' => 'The phone number is invalid. Example: +994775387707 or 0775387707.',
     'payment_init_failed' => 'Could not connect to the payment system. Please try again shortly.',
 ];

@@ -108,6 +108,7 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
 
     Route::apiResource('promocodes', PromocodeController::class);
 
+    Route::get('admin/users/export', [AdminUserController::class, 'export']);
     Route::get('admin/users', [AdminUserController::class, 'index']);
     Route::get('admin/orders/stats', [AdminOrderController::class, 'stats']);
     Route::get('admin/orders/export', [AdminOrderController::class, 'export']);
