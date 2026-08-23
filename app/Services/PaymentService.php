@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Enums\OrderStatus;
 use App\Enums\TransactionStatus;
 use App\Mail\OrderReceiptMail;
+use App\Models\Contact;
 use App\Models\Order;
 use App\Models\Transaction;
 use Illuminate\Support\Facades\DB;
@@ -22,6 +23,14 @@ class PaymentService
     public function initiate(Order $order): array
     {
         $order->loadMissing('user');
+
+        if ($order->user !== null && $order->contact_id === null) {
+            try {
+                $order->update(['contact_id' => Contact::syncFromUser($order->user)->id]);
+            } catch (\Throwable $e) {
+                Log::warning('Contact sync failed', ['order_id' => $order->id, 'error' => $e->getMessage()]);
+            }
+        }
 
         $clientOrderId = 'ZRL-'.$order->id.'-'.Str::upper(Str::random(8));
         $returnToken = Str::random(48);
@@ -48,7 +57,7 @@ class PaymentService
             ]);
 
             $transaction->update(['status' => TransactionStatus::Failed]);
-            $order->update(['status' => OrderStatus::Cancelled]);
+            $order->changeStatus(OrderStatus::Cancelled);
 
             $this->telegram->notifyPayment($order, TransactionStatus::Failed, 'Ödəniş sisteminə qoşulmaq mümkün olmadı');
 
@@ -109,12 +118,9 @@ class PaymentService
             $order = $locked->order()->lockForUpdate()->first();
 
             if ($status === TransactionStatus::Success) {
-                $order->update([
-                    'status' => OrderStatus::Paid,
-                    'paid_at' => now(),
-                ]);
+                $order->changeStatus(OrderStatus::Paid);
             } elseif ($order->status === OrderStatus::Pending) {
-                $order->update(['status' => OrderStatus::Cancelled]);
+                $order->changeStatus(OrderStatus::Cancelled);
             }
 
             return [$locked, true];

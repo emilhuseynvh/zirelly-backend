@@ -137,12 +137,7 @@ class AdminOrderController extends Controller
             'status' => ['required', Rule::enum(OrderStatus::class)],
         ]);
 
-        $status = OrderStatus::from($request->input('status'));
-
-        $order->update([
-            'status' => $status,
-            'paid_at' => $status === OrderStatus::Paid ? ($order->paid_at ?? now()) : $order->paid_at,
-        ]);
+        $order->changeStatus(OrderStatus::from($request->input('status')), null, 'admin');
 
         return new OrderResource($order->load(['user', 'items', 'transactions']));
     }

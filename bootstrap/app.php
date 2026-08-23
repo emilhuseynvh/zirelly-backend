@@ -19,6 +19,9 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
+            'crm' => \App\Http\Middleware\EnsureCrmUser::class,
+            'crm.section' => \App\Http\Middleware\EnsureCrmSection::class,
+            'crm.superadmin' => \App\Http\Middleware\EnsureCrmSuperadmin::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

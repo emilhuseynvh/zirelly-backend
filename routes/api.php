@@ -22,6 +22,12 @@ use App\Http\Controllers\Api\ProductsPageController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\RecentViewController;
 use App\Http\Controllers\Api\UploadController;
+use App\Http\Controllers\Api\Crm\AuditLogController as CrmAuditLogController;
+use App\Http\Controllers\Api\Crm\AuthController as CrmAuthController;
+use App\Http\Controllers\Api\Crm\ContactController as CrmContactController;
+use App\Http\Controllers\Api\Crm\OrderController as CrmOrderController;
+use App\Http\Controllers\Api\Crm\ReportController as CrmReportController;
+use App\Http\Controllers\Api\Crm\UserController as CrmUserController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('auth')->group(function () {
@@ -115,4 +121,54 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::get('admin/orders', [AdminOrderController::class, 'index']);
     Route::get('admin/orders/{order}', [AdminOrderController::class, 'show'])->whereNumber('order');
     Route::put('admin/orders/{order}/status', [AdminOrderController::class, 'updateStatus']);
+});
+Route::prefix('crm')->group(function () {
+    Route::post('auth/login', [CrmAuthController::class, 'login'])->middleware('throttle:10,1');
+
+    Route::middleware(['auth:sanctum', 'crm'])->group(function () {
+        Route::get('auth/me', [CrmAuthController::class, 'me']);
+        Route::post('auth/logout', [CrmAuthController::class, 'logout']);
+
+        Route::get('dashboard', [CrmReportController::class, 'summary'])
+            ->middleware('crm.section:dashboard');
+
+        Route::middleware('crm.section:reports')->group(function () {
+            Route::get('reports', [CrmReportController::class, 'summary']);
+            Route::get('reports/export', [CrmReportController::class, 'export']);
+        });
+
+        Route::middleware('crm.section:contacts')->group(function () {
+            Route::get('contacts/export', [CrmContactController::class, 'export']);
+            Route::get('contacts', [CrmContactController::class, 'index']);
+            Route::post('contacts', [CrmContactController::class, 'store']);
+            Route::get('contacts/{contact}', [CrmContactController::class, 'show'])->whereNumber('contact');
+            Route::put('contacts/{contact}', [CrmContactController::class, 'update'])->whereNumber('contact');
+            Route::post('contacts/{contact}/notes', [CrmContactController::class, 'storeNote'])->whereNumber('contact');
+            Route::delete('contacts/{contact}', [CrmContactController::class, 'destroy'])
+                ->whereNumber('contact')
+                ->middleware('crm.superadmin');
+        });
+
+        Route::middleware('crm.section:orders')->group(function () {
+            Route::get('orders/export', [CrmOrderController::class, 'export']);
+            Route::get('orders', [CrmOrderController::class, 'index']);
+            Route::post('orders', [CrmOrderController::class, 'store']);
+            Route::get('orders/{order}', [CrmOrderController::class, 'show'])->whereNumber('order');
+            Route::put('orders/{order}', [CrmOrderController::class, 'update'])->whereNumber('order');
+            Route::put('orders/{order}/status', [CrmOrderController::class, 'updateStatus'])->whereNumber('order');
+            Route::delete('orders/{order}', [CrmOrderController::class, 'destroy'])
+                ->whereNumber('order')
+                ->middleware('crm.superadmin');
+        });
+
+        Route::middleware('crm.superadmin')->group(function () {
+            Route::get('users', [CrmUserController::class, 'index']);
+            Route::post('users', [CrmUserController::class, 'store']);
+            Route::put('users/{user}', [CrmUserController::class, 'update'])->whereNumber('user');
+            Route::delete('users/{user}', [CrmUserController::class, 'destroy'])->whereNumber('user');
+        });
+
+        Route::get('audit-logs', [CrmAuditLogController::class, 'index'])
+            ->middleware('crm.section:audit');
+    });
 });
