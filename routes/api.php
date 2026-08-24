@@ -165,6 +165,11 @@ Route::prefix('crm')->group(function () {
         });
 
         Route::middleware('crm.superadmin')->group(function () {
+            Route::get('trash/contacts', [\App\Http\Controllers\Api\Crm\TrashController::class, 'contacts']);
+            Route::get('trash/orders', [\App\Http\Controllers\Api\Crm\TrashController::class, 'orders']);
+            Route::post('trash/contacts/{id}/restore', [\App\Http\Controllers\Api\Crm\TrashController::class, 'restoreContact'])->whereNumber('id');
+            Route::post('trash/orders/{id}/restore', [\App\Http\Controllers\Api\Crm\TrashController::class, 'restoreOrder'])->whereNumber('id');
+
             Route::get('users', [CrmUserController::class, 'index']);
             Route::post('users', [CrmUserController::class, 'store']);
             Route::put('users/{user}', [CrmUserController::class, 'update'])->whereNumber('user');

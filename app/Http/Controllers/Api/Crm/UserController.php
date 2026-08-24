@@ -14,6 +14,8 @@ use Illuminate\Validation\Rules\Password;
 
 class UserController extends Controller
 {
+    private const PASSWORD_MESSAGE = 'Şifrə minimum 8 simvol olmalı, ən azı bir hərf və bir rəqəm ehtiva etməlidir.';
+
     public function index(): AnonymousResourceCollection
     {
         return CrmUserResource::collection(
@@ -29,6 +31,10 @@ class UserController extends Controller
             'password' => ['required', 'string', Password::min(8)->letters()->numbers()],
             'permissions' => ['required', 'array'],
             'permissions.*' => [Rule::in(CrmUser::SECTIONS)],
+        ], [
+            'password.*' => self::PASSWORD_MESSAGE,
+            'password' => self::PASSWORD_MESSAGE,
+            'email.unique' => 'Bu e-poçt ilə istifadəçi artıq mövcuddur.',
         ]);
 
         $user = CrmUser::query()->create([
@@ -61,6 +67,10 @@ class UserController extends Controller
             'permissions' => ['sometimes', 'required', 'array'],
             'permissions.*' => [Rule::in(CrmUser::SECTIONS)],
             'is_active' => ['sometimes', 'boolean'],
+        ], [
+            'password.*' => self::PASSWORD_MESSAGE,
+            'password' => self::PASSWORD_MESSAGE,
+            'email.unique' => 'Bu e-poçt ilə istifadəçi artıq mövcuddur.',
         ]);
 
         if ($user->id === $request->user()->id && ($data['is_active'] ?? true) === false) {

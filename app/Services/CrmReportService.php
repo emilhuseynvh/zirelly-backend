@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\OrderStatus;
+use App\Models\Contact;
 use App\Models\Order;
 use App\Models\OrderItem;
 use Carbon\CarbonImmutable;
@@ -54,6 +55,7 @@ class CrmReportService
 
         $totals['new_customers'] = $newCustomers;
         $totals['repeat_customers'] = max(0, $buyerContacts->count() - $newCustomers);
+        $totals['customers_total'] = Contact::query()->count();
 
         $byProduct = OrderItem::query()
             ->join('orders', 'orders.id', '=', 'order_items.order_id')
