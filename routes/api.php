@@ -169,6 +169,8 @@ Route::prefix('crm')->group(function () {
             Route::get('trash/orders', [\App\Http\Controllers\Api\Crm\TrashController::class, 'orders']);
             Route::post('trash/contacts/{id}/restore', [\App\Http\Controllers\Api\Crm\TrashController::class, 'restoreContact'])->whereNumber('id');
             Route::post('trash/orders/{id}/restore', [\App\Http\Controllers\Api\Crm\TrashController::class, 'restoreOrder'])->whereNumber('id');
+            Route::delete('trash/contacts/{id}', [\App\Http\Controllers\Api\Crm\TrashController::class, 'forceDeleteContact'])->whereNumber('id');
+            Route::delete('trash/orders/{id}', [\App\Http\Controllers\Api\Crm\TrashController::class, 'forceDeleteOrder'])->whereNumber('id');
 
             Route::get('users', [CrmUserController::class, 'index']);
             Route::post('users', [CrmUserController::class, 'store']);

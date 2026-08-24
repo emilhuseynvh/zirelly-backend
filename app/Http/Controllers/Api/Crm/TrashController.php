@@ -53,4 +53,31 @@ class TrashController extends Controller
 
         return new CrmOrderResource($order->load(['contact', 'user']));
     }
+
+    public function forceDeleteContact(Request $request, int $id): \Illuminate\Http\JsonResponse
+    {
+        $contact = Contact::onlyTrashed()->findOrFail($id);
+
+        AuditLog::record($request->user(), 'contact_force_deleted', $contact, [
+            'name' => trim($contact->name.' '.($contact->surname ?? '')),
+            'phone' => $contact->phone,
+        ]);
+
+        $contact->forceDelete();
+
+        return response()->json(['message' => 'Müştəri tam silindi.']);
+    }
+
+    public function forceDeleteOrder(Request $request, int $id): \Illuminate\Http\JsonResponse
+    {
+        $order = Order::onlyTrashed()->findOrFail($id);
+
+        AuditLog::record($request->user(), 'order_force_deleted', $order, [
+            'total' => (string) $order->total,
+        ]);
+
+        $order->forceDelete();
+
+        return response()->json(['message' => 'Sifariş tam silindi.']);
+    }
 }
