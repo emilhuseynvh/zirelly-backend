@@ -21,6 +21,7 @@ class Contact extends Model
         'email',
         'birth_date',
         'channel',
+        'created_via',
     ];
 
     protected function casts(): array
@@ -70,6 +71,7 @@ class Contact extends Model
                 'email' => $user->email,
                 'birth_date' => $user->birth_date,
                 'channel' => 'website',
+                'created_via' => 'site',
             ]);
         }
 

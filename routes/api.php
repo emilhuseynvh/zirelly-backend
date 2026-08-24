@@ -139,6 +139,7 @@ Route::prefix('crm')->group(function () {
 
         Route::middleware('crm.section:contacts')->group(function () {
             Route::get('contacts/export', [CrmContactController::class, 'export']);
+            Route::get('contacts/check-phone', [CrmContactController::class, 'checkPhone']);
             Route::get('contacts', [CrmContactController::class, 'index']);
             Route::post('contacts', [CrmContactController::class, 'store']);
             Route::get('contacts/{contact}', [CrmContactController::class, 'show'])->whereNumber('contact');

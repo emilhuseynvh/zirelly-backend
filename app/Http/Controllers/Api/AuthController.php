@@ -53,6 +53,15 @@ class AuthController extends Controller
         $user = User::query()->where('email', $email)->firstOrFail();
         $user->markEmailAsVerified();
 
+        try {
+            \App\Models\Contact::syncFromUser($user);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Contact sync on registration failed', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
         return response()->json([
             'token' => $user->createToken('api')->plainTextToken,
             'user' => new UserResource($user),

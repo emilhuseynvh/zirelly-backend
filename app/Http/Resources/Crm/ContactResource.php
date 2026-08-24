@@ -18,6 +18,7 @@ class ContactResource extends JsonResource
             'email' => $this->email,
             'birth_date' => $this->birth_date?->toDateString(),
             'channel' => $this->channel,
+            'created_via' => $this->created_via,
             'orders_count' => (int) ($this->orders_count ?? 0),
             'orders_total' => round((float) ($this->orders_total ?? 0), 2),
             'first_order_at' => $this->first_order_at,

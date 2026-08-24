@@ -109,7 +109,7 @@ class ContactController extends Controller
             fwrite($out, "\xEF\xBB\xBF");
 
             fputcsv($out, [
-                '№', 'Ad', 'Soyad', 'Telefon', 'E-poçt', 'Doğum tarixi', 'Kanal',
+                '№', 'Ad', 'Soyad', 'Telefon', 'E-poçt', 'Doğum tarixi', 'Kanal', 'Tip',
                 'Sifariş sayı', 'Ümumi alış', 'İlk sifariş', 'Son sifariş', 'Yaradılma tarixi',
             ]);
 
@@ -122,6 +122,7 @@ class ContactController extends Controller
                     $contact->email,
                     $contact->birth_date?->format('d.m.Y'),
                     $contact->channel,
+                    $contact->created_via === 'site' ? 'Saytdan' : 'CRM-dən',
                     (int) $contact->orders_count,
                     number_format((float) $contact->orders_total, 2, '.', ''),
                     $contact->first_order_at ? date('d.m.Y', strtotime($contact->first_order_at)) : '',
@@ -134,11 +135,34 @@ class ContactController extends Controller
         }, $filename, ['Content-Type' => 'text/csv; charset=UTF-8']);
     }
 
+    public function checkPhone(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $request->validate(['phone' => ['required', 'string', 'max:30']]);
+
+        $phone = Phone::normalize($request->input('phone'));
+
+        $contact = Contact::query()
+            ->where('phone', $phone)
+            ->when($request->filled('except'), fn ($q) => $q->where('id', '!=', $request->integer('except')))
+            ->first();
+
+        return response()->json([
+            'data' => $contact ? [
+                'id' => $contact->id,
+                'name' => trim($contact->name.' '.($contact->surname ?? '')),
+                'phone' => $contact->phone,
+                'email' => $contact->email,
+            ] : null,
+        ]);
+    }
+
     protected function filteredQuery(Request $request): Builder
     {
         $request->validate([
             'search' => ['sometimes', 'string', 'max:100'],
             'channel' => ['sometimes', Rule::in(Contact::CHANNELS)],
+            'created_via' => ['sometimes', Rule::in(['site', 'crm'])],
+            'has_orders' => ['sometimes', Rule::in(['yes', 'no'])],
             'from' => ['sometimes', 'date'],
             'to' => ['sometimes', 'date'],
             'sort' => ['sometimes', Rule::in(['id', 'name', 'orders_count', 'orders_total', 'last_order_at', 'created_at'])],
@@ -148,6 +172,9 @@ class ContactController extends Controller
 
         return $this->withStats(Contact::query())
             ->when($request->filled('channel'), fn ($q) => $q->where('channel', $request->input('channel')))
+            ->when($request->filled('created_via'), fn ($q) => $q->where('created_via', $request->input('created_via')))
+            ->when($request->input('has_orders') === 'yes', fn ($q) => $q->has('orders'))
+            ->when($request->input('has_orders') === 'no', fn ($q) => $q->doesntHave('orders'))
             ->when($request->filled('from'), fn ($q) => $q->whereDate('created_at', '>=', $request->input('from')))
             ->when($request->filled('to'), fn ($q) => $q->whereDate('created_at', '<=', $request->input('to')))
             ->when($request->filled('search'), function ($q) use ($request) {
