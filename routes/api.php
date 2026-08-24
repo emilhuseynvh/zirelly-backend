@@ -145,6 +145,8 @@ Route::prefix('crm')->group(function () {
             Route::get('contacts/{contact}', [CrmContactController::class, 'show'])->whereNumber('contact');
             Route::put('contacts/{contact}', [CrmContactController::class, 'update'])->whereNumber('contact');
             Route::post('contacts/{contact}/notes', [CrmContactController::class, 'storeNote'])->whereNumber('contact');
+            Route::put('contacts/{contact}/notes/{note}', [CrmContactController::class, 'updateNote'])->whereNumber('contact')->whereNumber('note');
+            Route::delete('contacts/{contact}/notes/{note}', [CrmContactController::class, 'destroyNote'])->whereNumber('contact')->whereNumber('note');
             Route::delete('contacts/{contact}', [CrmContactController::class, 'destroy'])
                 ->whereNumber('contact')
                 ->middleware('crm.superadmin');

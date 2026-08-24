@@ -13,6 +13,7 @@ class ContactNoteResource extends JsonResource
             'id' => $this->id,
             'body' => $this->body,
             'author' => $this->author?->name,
+            'author_id' => $this->crm_user_id,
             'created_at' => $this->created_at?->toIso8601String(),
         ];
     }

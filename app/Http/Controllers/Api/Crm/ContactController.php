@@ -8,6 +8,7 @@ use App\Http\Resources\Crm\ContactNoteResource;
 use App\Http\Resources\Crm\ContactResource;
 use App\Models\AuditLog;
 use App\Models\Contact;
+use App\Models\ContactNote;
 use App\Support\Phone;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
@@ -96,6 +97,43 @@ class ContactController extends Controller
         AuditLog::record($request->user(), 'contact_note_added', $contact);
 
         return (new ContactNoteResource($note->load('author')))->response()->setStatusCode(201);
+    }
+
+    public function updateNote(Request $request, Contact $contact, ContactNote $note): ContactNoteResource
+    {
+        $this->authorizeNote($request, $contact, $note);
+
+        $request->validate(['body' => ['required', 'string', 'max:2000']]);
+
+        $note->update(['body' => $request->input('body')]);
+
+        AuditLog::record($request->user(), 'contact_note_updated', $contact, ['note_id' => $note->id]);
+
+        return new ContactNoteResource($note->load('author'));
+    }
+
+    public function destroyNote(Request $request, Contact $contact, ContactNote $note): JsonResponse
+    {
+        $this->authorizeNote($request, $contact, $note);
+
+        $note->delete();
+
+        AuditLog::record($request->user(), 'contact_note_deleted', $contact, ['note_id' => $note->id]);
+
+        return response()->json(['message' => 'Qeyd silindi.']);
+    }
+
+    protected function authorizeNote(Request $request, Contact $contact, ContactNote $note): void
+    {
+        abort_unless($note->contact_id === $contact->id, 404);
+
+        $user = $request->user();
+
+        abort_unless(
+            $user->isSuperadmin() || $note->crm_user_id === $user->id,
+            403,
+            'Yalnız öz qeydinizi dəyişə bilərsiniz.',
+        );
     }
 
     public function export(Request $request): StreamedResponse
