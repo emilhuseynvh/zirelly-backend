@@ -171,6 +171,12 @@ Route::prefix('crm')->group(function () {
             Route::post('trash/orders/{id}/restore', [\App\Http\Controllers\Api\Crm\TrashController::class, 'restoreOrder'])->whereNumber('id');
             Route::delete('trash/contacts/{id}', [\App\Http\Controllers\Api\Crm\TrashController::class, 'forceDeleteContact'])->whereNumber('id');
             Route::delete('trash/orders/{id}', [\App\Http\Controllers\Api\Crm\TrashController::class, 'forceDeleteOrder'])->whereNumber('id');
+            Route::get('trash/users', [\App\Http\Controllers\Api\Crm\TrashController::class, 'users']);
+            Route::post('trash/users/{id}/restore', [\App\Http\Controllers\Api\Crm\TrashController::class, 'restoreUser'])->whereNumber('id');
+            Route::delete('trash/users/{id}', [\App\Http\Controllers\Api\Crm\TrashController::class, 'forceDeleteUser'])->whereNumber('id');
+            Route::get('trash/notes', [\App\Http\Controllers\Api\Crm\TrashController::class, 'notes']);
+            Route::post('trash/notes/{id}/restore', [\App\Http\Controllers\Api\Crm\TrashController::class, 'restoreNote'])->whereNumber('id');
+            Route::delete('trash/notes/{id}', [\App\Http\Controllers\Api\Crm\TrashController::class, 'forceDeleteNote'])->whereNumber('id');
 
             Route::get('users', [CrmUserController::class, 'index']);
             Route::post('users', [CrmUserController::class, 'store']);

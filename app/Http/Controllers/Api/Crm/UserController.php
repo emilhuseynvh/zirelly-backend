@@ -56,10 +56,6 @@ class UserController extends Controller
 
     public function update(Request $request, CrmUser $user): CrmUserResource
     {
-        if ($user->isSuperadmin() && $user->id !== $request->user()->id) {
-            abort(403, 'Superadmin hesabını dəyişmək olmaz.');
-        }
-
         $data = $request->validate([
             'name' => ['sometimes', 'required', 'string', 'max:100'],
             'email' => ['sometimes', 'required', 'email', 'max:255', Rule::unique('crm_users', 'email')->ignore($user->id)->whereNull('deleted_at')],
@@ -78,7 +74,21 @@ class UserController extends Controller
         }
 
         if ($user->isSuperadmin()) {
-            unset($data['permissions'], $data['is_active']);
+            unset($data['permissions']);
+
+            $deactivating = ($data['is_active'] ?? true) === false;
+
+            if ($deactivating) {
+                $otherActiveSuperadmins = CrmUser::query()
+                    ->where('role', CrmUser::ROLE_SUPERADMIN)
+                    ->where('id', '!=', $user->id)
+                    ->where('is_active', true)
+                    ->exists();
+
+                if (! $otherActiveSuperadmins) {
+                    abort(422, 'Sistemdə ən azı bir aktiv superadmin qalmalıdır.');
+                }
+            }
         }
 
         $user->update($data);
