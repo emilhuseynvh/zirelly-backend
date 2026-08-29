@@ -10,6 +10,7 @@ class Upload extends Model
     protected $fillable = [
         'path',
         'original_name',
+        'alt',
         'mime_type',
         'size',
     ];

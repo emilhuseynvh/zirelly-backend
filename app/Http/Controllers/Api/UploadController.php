@@ -15,6 +15,7 @@ class UploadController extends Controller
     {
         $request->validate([
             'image' => ['required', 'image', 'max:4096'],
+            'alt' => ['sometimes', 'nullable', 'string', 'max:255'],
         ]);
 
         $file = $request->file('image');
@@ -22,11 +23,23 @@ class UploadController extends Controller
         $upload = Upload::create([
             'path' => $file->store('uploads', 'public'),
             'original_name' => $file->getClientOriginalName(),
+            'alt' => $request->input('alt'),
             'mime_type' => $file->getMimeType(),
             'size' => $file->getSize(),
         ]);
 
         return (new UploadResource($upload))->response()->setStatusCode(201);
+    }
+
+    public function update(Request $request, Upload $upload): UploadResource
+    {
+        $request->validate([
+            'alt' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        $upload->update(['alt' => $request->input('alt')]);
+
+        return new UploadResource($upload);
     }
 
     public function destroy(Upload $upload): Response

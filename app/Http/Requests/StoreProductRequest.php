@@ -46,6 +46,8 @@ class StoreProductRequest extends FormRequest
             $rules["translations.{$code}.title"] = [$isDefault ? 'required' : 'nullable', 'string', 'max:255'];
             $rules["translations.{$code}.meta_title"] = ['nullable', 'string', 'max:255'];
             $rules["translations.{$code}.meta_description"] = ['nullable', 'string', 'max:500'];
+            $rules["translations.{$code}.og_title"] = ['nullable', 'string', 'max:255'];
+            $rules["translations.{$code}.og_description"] = ['nullable', 'string', 'max:500'];
             $rules["translations.{$code}.description"] = ['nullable', 'string'];
             $rules["translations.{$code}.pro_tip"] = ['nullable', 'string', 'max:1000'];
 

@@ -26,6 +26,8 @@ class Product extends Model
         'title',
         'meta_title',
         'meta_description',
+        'og_title',
+        'og_description',
         'description',
         'pro_tip',
     ];

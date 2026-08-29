@@ -13,6 +13,7 @@ class UploadResource extends JsonResource
             'id' => $this->id,
             'url' => $this->url(),
             'original_name' => $this->original_name,
+            'alt' => $this->alt,
             'mime_type' => $this->mime_type,
             'size' => $this->size,
         ];

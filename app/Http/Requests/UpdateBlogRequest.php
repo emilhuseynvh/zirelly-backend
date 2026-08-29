@@ -30,6 +30,8 @@ class UpdateBlogRequest extends FormRequest
             $rules["translations.{$code}.title"] = ['nullable', 'string', 'max:255'];
             $rules["translations.{$code}.meta_title"] = ['nullable', 'string', 'max:255'];
             $rules["translations.{$code}.meta_description"] = ['nullable', 'string', 'max:500'];
+            $rules["translations.{$code}.og_title"] = ['nullable', 'string', 'max:255'];
+            $rules["translations.{$code}.og_description"] = ['nullable', 'string', 'max:500'];
             $rules["translations.{$code}.content"] = ['nullable', 'string'];
         }
 

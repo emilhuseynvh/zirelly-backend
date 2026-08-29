@@ -20,9 +20,11 @@ if [ "$CONNECTION" = "sqlite" ]; then
   sqlite3 "$DB_FILE" ".backup '$BACKUP_DIR/db-$STAMP.sqlite'"
   gzip "$BACKUP_DIR/db-$STAMP.sqlite"
 else
+  DB_HOST="$(env_val DB_HOST)"
+  DB_PORT="$(env_val DB_PORT)"
   MYSQL_PWD="$(env_val DB_PASSWORD)" mysqldump \
-    --host="$(env_val DB_HOST)" \
-    --port="$(env_val DB_PORT)" \
+    --host="${DB_HOST:-127.0.0.1}" \
+    --port="${DB_PORT:-3306}" \
     --user="$(env_val DB_USERNAME)" \
     --single-transaction --quick --routines \
     "$(env_val DB_DATABASE)" | gzip > "$BACKUP_DIR/db-$STAMP.sql.gz"

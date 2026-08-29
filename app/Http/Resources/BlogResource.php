@@ -16,6 +16,8 @@ class BlogResource extends JsonResource
             'title' => $this->translate('title'),
             'meta_title' => $this->translate('meta_title'),
             'meta_description' => $this->translate('meta_description'),
+            'og_title' => $this->translate('og_title'),
+            'og_description' => $this->translate('og_description'),
             'content' => $this->translate('content'),
             'is_published' => $this->is_published,
             'published_at' => $this->published_at?->toIso8601String(),

@@ -21,6 +21,7 @@ use App\Http\Controllers\Api\ProductReviewController;
 use App\Http\Controllers\Api\ProductsPageController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\RecentViewController;
+use App\Http\Controllers\Api\RedirectController;
 use App\Http\Controllers\Api\UploadController;
 use App\Http\Controllers\Api\Crm\AuditLogController as CrmAuditLogController;
 use App\Http\Controllers\Api\Crm\AuthController as CrmAuthController;
@@ -58,6 +59,7 @@ Route::get('contact', [ContactController::class, 'show']);
 Route::get('products-page', [ProductsPageController::class, 'show']);
 Route::get('popup', [PopupController::class, 'show']);
 Route::get('legal/{slug}', [LegalPageController::class, 'show']);
+Route::get('redirects', [RedirectController::class, 'index']);
 Route::post('contact/messages', [ContactMessageController::class, 'store'])->middleware('throttle:5,1');
 
 Route::get('payments/united/return/{transaction}', [PaymentController::class, 'handleReturn'])
@@ -110,9 +112,15 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::delete('contact/messages/{message}', [ContactMessageController::class, 'destroy']);
 
     Route::post('uploads', [UploadController::class, 'store']);
+    Route::put('uploads/{upload}', [UploadController::class, 'update']);
     Route::delete('uploads/{upload}', [UploadController::class, 'destroy']);
 
     Route::apiResource('promocodes', PromocodeController::class);
+
+    Route::get('admin/redirects', [RedirectController::class, 'adminIndex']);
+    Route::post('admin/redirects', [RedirectController::class, 'store']);
+    Route::put('admin/redirects/{redirect}', [RedirectController::class, 'update']);
+    Route::delete('admin/redirects/{redirect}', [RedirectController::class, 'destroy']);
 
     Route::get('admin/users/export', [AdminUserController::class, 'export']);
     Route::get('admin/users', [AdminUserController::class, 'index']);

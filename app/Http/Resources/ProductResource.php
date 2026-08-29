@@ -15,6 +15,8 @@ class ProductResource extends JsonResource
             'title' => $this->translate('title'),
             'meta_title' => $this->translate('meta_title'),
             'meta_description' => $this->translate('meta_description'),
+            'og_title' => $this->translate('og_title'),
+            'og_description' => $this->translate('og_description'),
             'description' => $this->translate('description'),
             'price' => (float) $this->price,
             'discount' => $this->discount !== null ? (float) $this->discount : null,
