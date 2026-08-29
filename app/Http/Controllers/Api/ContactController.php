@@ -22,7 +22,7 @@ class ContactController extends Controller
 
         DB::transaction(function () use ($data, $page) {
             $page->update(
-                collect($data)->only(['email', 'phone', 'map_embed_url'])->all(),
+                collect($data)->only(['email', 'phone', 'map_embed_url', 'facebook_url', 'instagram_url', 'tiktok_url', 'linkedin_url'])->all(),
             );
 
             if (! empty($data['translations'])) {

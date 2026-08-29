@@ -26,6 +26,8 @@ class ContactMessageController extends Controller
     {
         $messages = ContactMessage::query()
             ->when($request->boolean('unread'), fn ($q) => $q->where('is_read', false))
+            ->when($request->input('status') === 'read', fn ($q) => $q->where('is_read', true))
+            ->when($request->input('status') === 'unread', fn ($q) => $q->where('is_read', false))
             ->when($request->filled('subject'), fn ($q) => $q->where('subject', $request->input('subject')))
             ->latest('id')
             ->paginate($request->integer('per_page', 15));
@@ -33,9 +35,9 @@ class ContactMessageController extends Controller
         return ContactMessageResource::collection($messages);
     }
 
-    public function markRead(ContactMessage $message): ContactMessageResource
+    public function markRead(Request $request, ContactMessage $message): ContactMessageResource
     {
-        $message->update(['is_read' => true]);
+        $message->update(['is_read' => $request->has('is_read') ? $request->boolean('is_read') : true]);
 
         return new ContactMessageResource($message);
     }

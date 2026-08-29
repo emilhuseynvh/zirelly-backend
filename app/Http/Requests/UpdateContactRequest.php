@@ -20,6 +20,10 @@ class UpdateContactRequest extends FormRequest
             'email' => ['nullable', 'email', 'max:255'],
             'phone' => ['nullable', 'string', 'max:30'],
             'map_embed_url' => ['nullable', 'string', 'max:2000'],
+            'facebook_url' => ['nullable', 'string', 'max:500'],
+            'instagram_url' => ['nullable', 'string', 'max:500'],
+            'tiktok_url' => ['nullable', 'string', 'max:500'],
+            'linkedin_url' => ['nullable', 'string', 'max:500'],
             'translations' => ['sometimes', 'array:'.$codes->implode(',')],
         ];
 
@@ -29,6 +33,7 @@ class UpdateContactRequest extends FormRequest
             $rules["translations.{$code}.meta_description"] = ['nullable', 'string', 'max:500'];
             $rules["translations.{$code}.title"] = ['nullable', 'string', 'max:255'];
             $rules["translations.{$code}.subtitle"] = ['nullable', 'string', 'max:1000'];
+            $rules["translations.{$code}.footer_description"] = ['nullable', 'string', 'max:1000'];
         }
 
         return $rules;

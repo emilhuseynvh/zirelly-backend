@@ -13,6 +13,10 @@ class ContactPage extends Model
         'email',
         'phone',
         'map_embed_url',
+        'facebook_url',
+        'instagram_url',
+        'tiktok_url',
+        'linkedin_url',
     ];
 
     protected array $translatable = [
@@ -20,6 +24,7 @@ class ContactPage extends Model
         'meta_description',
         'title',
         'subtitle',
+        'footer_description',
     ];
 
     public static function current(): static
