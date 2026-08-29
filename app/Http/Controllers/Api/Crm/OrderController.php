@@ -69,7 +69,7 @@ class OrderController extends Controller
 
                 $items[] = [
                     'product_id' => $product?->id,
-                    'title' => $item['title'] ?? $product?->translate('title') ?? $product?->slug ?? '—',
+                    'title' => $item['title'] ?? $product?->translate('title', 'az') ?? $product?->translate('title') ?? $product?->slug ?? '—',
                     'unit_price' => $item['unit_price'],
                     'quantity' => $item['quantity'],
                     'line_total' => $lineTotal,

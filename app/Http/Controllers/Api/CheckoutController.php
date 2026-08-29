@@ -59,7 +59,7 @@ class CheckoutController extends Controller
             foreach ($basketItems as $item) {
                 $order->items()->create([
                     'product_id' => $item->product_id,
-                    'title' => $item->product->translate('title') ?? $item->product->slug,
+                    'title' => $item->product->translate('title', 'az') ?? $item->product->translate('title') ?? $item->product->slug,
                     'unit_price' => $item->product->finalPrice(),
                     'quantity' => $item->quantity,
                     'line_total' => $item->lineTotal(),
