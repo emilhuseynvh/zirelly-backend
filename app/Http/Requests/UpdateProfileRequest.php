@@ -35,6 +35,7 @@ class UpdateProfileRequest extends FormRequest
             'surname' => ['sometimes', 'required', 'string', 'max:100'],
             'phone' => ['sometimes', 'required', 'string', 'max:20', 'regex:'.Phone::AZ_PATTERN, Rule::unique('users', 'phone')->ignore($userId)],
             'birth_date' => ['sometimes', 'required', 'date', 'before:today'],
+            'address' => ['sometimes', 'nullable', 'string', 'max:1000'],
             'email' => ['sometimes', 'required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($userId)],
             'password' => ['sometimes', 'required', 'confirmed', Password::defaults()],
             'current_password' => ['required_with:password', 'current_password:sanctum'],

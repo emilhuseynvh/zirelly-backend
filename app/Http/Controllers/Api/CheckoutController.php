@@ -45,9 +45,10 @@ class CheckoutController extends Controller
             $discount = $promocode->discountFor($subtotal);
         }
 
-        $order = DB::transaction(function () use ($user, $basketItems, $subtotal, $discount, $promocode) {
+        $order = DB::transaction(function () use ($request, $user, $basketItems, $subtotal, $discount, $promocode) {
             $order = $user->orders()->create([
                 'status' => OrderStatus::Pending,
+                'address' => $request->input('address'),
                 'subtotal' => $subtotal,
                 'discount_amount' => $discount,
                 'total' => round($subtotal - $discount, 2),

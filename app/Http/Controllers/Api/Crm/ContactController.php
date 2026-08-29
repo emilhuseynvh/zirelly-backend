@@ -147,7 +147,7 @@ class ContactController extends Controller
             fwrite($out, "\xEF\xBB\xBF");
 
             fputcsv($out, [
-                '№', 'Ad', 'Soyad', 'Telefon', 'E-poçt', 'Doğum tarixi', 'Kanal', 'Tip',
+                '№', 'Ad', 'Soyad', 'Telefon', 'E-poçt', 'Ünvan', 'Doğum tarixi', 'Kanal', 'Tip',
                 'Sifariş sayı', 'Ümumi alış', 'İlk sifariş', 'Son sifariş', 'Yaradılma tarixi',
             ]);
 
@@ -158,6 +158,7 @@ class ContactController extends Controller
                     $contact->surname,
                     $contact->phone,
                     $contact->email,
+                    $contact->address,
                     $contact->birth_date?->format('d.m.Y'),
                     $contact->channel,
                     $contact->created_via === 'site' ? 'Saytdan' : 'CRM-dən',
@@ -237,6 +238,7 @@ class ContactController extends Controller
         $paidStatuses = array_map(fn ($s) => $s->value, OrderStatus::paidLike());
 
         return $query
+            ->with('user:id,email_verified_at')
             ->withCount('orders')
             ->withSum(['orders as orders_total' => fn ($q) => $q->whereIn('status', $paidStatuses)], 'total')
             ->withMin(['orders as first_order_at'], 'created_at')
@@ -251,6 +253,7 @@ class ContactController extends Controller
             'phone' => ['nullable', 'string', 'max:30'],
             'email' => ['nullable', 'email', 'max:255'],
             'birth_date' => ['nullable', 'date'],
+            'address' => ['nullable', 'string', 'max:1000'],
             'channel' => ['required', Rule::in(Contact::CHANNELS)],
         ]);
 

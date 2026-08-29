@@ -10,6 +10,7 @@ class CheckoutRequest extends FormRequest
     {
         return [
             'promocode' => ['sometimes', 'nullable', 'string', 'max:50'],
+            'address' => ['required', 'string', 'max:1000'],
         ];
     }
 

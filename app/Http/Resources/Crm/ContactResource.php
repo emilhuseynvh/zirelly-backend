@@ -17,6 +17,10 @@ class ContactResource extends JsonResource
             'phone' => $this->phone,
             'email' => $this->email,
             'birth_date' => $this->birth_date?->toDateString(),
+            'address' => $this->address,
+            'email_verified' => $this->user_id !== null
+                ? $this->user?->hasVerifiedEmail() ?? false
+                : null,
             'channel' => $this->channel,
             'created_via' => $this->created_via,
             'orders_count' => (int) ($this->orders_count ?? 0),

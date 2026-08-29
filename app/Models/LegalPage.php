@@ -9,7 +9,7 @@ class LegalPage extends Model
 {
     use HasTranslations;
 
-    public const SLUGS = ['return-policy', 'privacy-policy'];
+    public const SLUGS = ['return-policy', 'privacy-policy', 'delivery-payment', 'terms-of-use'];
 
     protected $fillable = [
         'slug',

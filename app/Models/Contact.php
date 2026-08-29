@@ -20,6 +20,7 @@ class Contact extends Model
         'phone',
         'email',
         'birth_date',
+        'address',
         'channel',
         'created_via',
     ];
@@ -70,6 +71,7 @@ class Contact extends Model
                 'phone' => $user->phone,
                 'email' => $user->email,
                 'birth_date' => $user->birth_date,
+                'address' => $user->address,
                 'channel' => 'website',
                 'created_via' => 'site',
             ]);
@@ -82,6 +84,7 @@ class Contact extends Model
             'phone' => $contact->phone ?? $user->phone,
             'email' => $contact->email ?? $user->email,
             'birth_date' => $contact->birth_date ?? $user->birth_date,
+            'address' => $contact->address ?? $user->address,
         ])->save();
 
         return $contact;

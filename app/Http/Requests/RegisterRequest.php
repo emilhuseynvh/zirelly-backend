@@ -33,6 +33,7 @@ class RegisterRequest extends FormRequest
             'surname' => ['required', 'string', 'max:100'],
             'phone' => ['required', 'string', 'max:20', 'regex:'.Phone::AZ_PATTERN, Rule::unique('users', 'phone')->whereNotNull('email_verified_at')],
             'birth_date' => ['required', 'date', 'before:today'],
+            'address' => ['required', 'string', 'max:1000'],
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->whereNotNull('email_verified_at')],
             'password' => ['required', 'confirmed', Password::defaults()],
         ];
