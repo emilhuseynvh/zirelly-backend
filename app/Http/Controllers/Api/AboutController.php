@@ -22,7 +22,7 @@ class AboutController extends Controller
 
         DB::transaction(function () use ($data, $page) {
             $page->update(
-                collect($data)->only(['hero_image_id', 'section_image_id'])->all(),
+                collect($data)->only(['hero_image_id', 'section_image_id', 'og_image_id'])->all(),
             );
 
             if (! empty($data['translations'])) {
@@ -45,6 +45,6 @@ class AboutController extends Controller
 
     protected function loadRelations(AboutPage $page): AboutPage
     {
-        return $page->load(['translations', 'heroImage', 'sectionImage', 'items.translations']);
+        return $page->load(['translations', 'heroImage', 'sectionImage', 'ogImage', 'items.translations']);
     } 
 }

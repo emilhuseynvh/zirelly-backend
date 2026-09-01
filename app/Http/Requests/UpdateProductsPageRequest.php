@@ -19,6 +19,7 @@ class UpdateProductsPageRequest extends FormRequest
 
         $rules = [
             'side_image_id' => ['nullable', 'integer', Rule::exists('uploads', 'id')],
+            'og_image_id' => ['nullable', 'integer', Rule::exists('uploads', 'id')],
             'slides' => ['sometimes', 'array'],
             'slides.*.image_id' => ['nullable', 'integer', Rule::exists('uploads', 'id')],
             'slides.*.link' => ['nullable', 'string', 'max:2000'],
@@ -30,6 +31,8 @@ class UpdateProductsPageRequest extends FormRequest
             $rules["translations.{$code}"] = ['sometimes', 'array'];
             $rules["translations.{$code}.meta_title"] = ['nullable', 'string', 'max:255'];
             $rules["translations.{$code}.meta_description"] = ['nullable', 'string', 'max:500'];
+            $rules["translations.{$code}.og_title"] = ['nullable', 'string', 'max:255'];
+            $rules["translations.{$code}.og_description"] = ['nullable', 'string', 'max:500'];
             $rules["translations.{$code}.products_title"] = ['nullable', 'string', 'max:255'];
 
             $rules["slides.*.translations.{$code}"] = ['sometimes', 'array'];

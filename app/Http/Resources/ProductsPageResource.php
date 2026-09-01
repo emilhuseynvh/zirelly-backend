@@ -12,6 +12,9 @@ class ProductsPageResource extends JsonResource
         return [
             'meta_title' => $this->translate('meta_title'),
             'meta_description' => $this->translate('meta_description'),
+            'og_title' => $this->translate('og_title'),
+            'og_description' => $this->translate('og_description'),
+            'og_image' => new UploadResource($this->whenLoaded('ogImage')),
             'products_title' => $this->translate('products_title'),
             'slides' => ProductsPageSlideResource::collection($this->whenLoaded('slides')),
             'side_image' => new UploadResource($this->whenLoaded('sideImage')),

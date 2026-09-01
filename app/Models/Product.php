@@ -7,6 +7,7 @@ use App\Models\Concerns\HasTranslations;
 use App\Models\Concerns\HasUniqueSlug;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -20,6 +21,7 @@ class Product extends Model
         'discount',
         'discount_type',
         'is_active',
+        'og_image_id',
     ];
 
     protected array $translatable = [
@@ -57,6 +59,11 @@ class Product extends Model
             ->orderByPivot('position');
     }
 
+    public function ogImage(): BelongsTo
+    {
+        return $this->belongsTo(Upload::class, 'og_image_id');
+    }
+
     public function features(): HasMany
     {
         return $this->hasMany(ProductFeature::class)->orderBy('position');
@@ -70,6 +77,11 @@ class Product extends Model
     public function reviews(): HasMany
     {
         return $this->hasMany(ProductReview::class);
+    }
+
+    public function approvedReviews(): HasMany
+    {
+        return $this->hasMany(ProductReview::class)->approved();
     }
 
     public function scopeActive(Builder $query): Builder

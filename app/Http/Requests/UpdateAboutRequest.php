@@ -20,6 +20,7 @@ class UpdateAboutRequest extends FormRequest
         $rules = [
             'hero_image_id' => ['nullable', 'integer', Rule::exists('uploads', 'id')],
             'section_image_id' => ['nullable', 'integer', Rule::exists('uploads', 'id')],
+            'og_image_id' => ['nullable', 'integer', Rule::exists('uploads', 'id')],
             'translations' => ['sometimes', 'array:'.$codes->implode(',')],
             'items' => ['sometimes', 'array'],
             'items.*.translations' => ['required', 'array:'.$codes->implode(',')],
@@ -29,6 +30,8 @@ class UpdateAboutRequest extends FormRequest
             $rules["translations.{$code}"] = ['sometimes', 'array'];
             $rules["translations.{$code}.meta_title"] = ['nullable', 'string', 'max:255'];
             $rules["translations.{$code}.meta_description"] = ['nullable', 'string', 'max:500'];
+            $rules["translations.{$code}.og_title"] = ['nullable', 'string', 'max:255'];
+            $rules["translations.{$code}.og_description"] = ['nullable', 'string', 'max:500'];
             $rules["translations.{$code}.hero_title"] = ['nullable', 'string', 'max:255'];
             $rules["translations.{$code}.hero_description"] = ['nullable', 'string'];
             $rules["translations.{$code}.section_title"] = ['nullable', 'string', 'max:255'];

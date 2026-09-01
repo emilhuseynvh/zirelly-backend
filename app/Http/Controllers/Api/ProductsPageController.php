@@ -22,7 +22,7 @@ class ProductsPageController extends Controller
 
         DB::transaction(function () use ($data, $page) {
             $page->update(
-                collect($data)->only('side_image_id')->all(),
+                collect($data)->only(['side_image_id', 'og_image_id'])->all(),
             );
 
             if (! empty($data['translations'])) {
@@ -54,6 +54,7 @@ class ProductsPageController extends Controller
             'slides.translations',
             'slides.image',
             'sideImage',
+            'ogImage',
         ]);
     }
 }

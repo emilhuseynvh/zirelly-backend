@@ -12,7 +12,7 @@ class ContactController extends Controller
 {
     public function show(): ContactResource
     {
-        return new ContactResource(ContactPage::current()->load('translations'));
+        return new ContactResource(ContactPage::current()->load(['translations', 'ogImage']));
     }
 
     public function update(UpdateContactRequest $request): ContactResource
@@ -22,7 +22,7 @@ class ContactController extends Controller
 
         DB::transaction(function () use ($data, $page) {
             $page->update(
-                collect($data)->only(['email', 'phone', 'map_embed_url', 'facebook_url', 'instagram_url', 'tiktok_url', 'linkedin_url'])->all(),
+                collect($data)->only(['email', 'phone', 'whatsapp_number', 'map_embed_url', 'facebook_url', 'instagram_url', 'tiktok_url', 'linkedin_url', 'og_image_id'])->all(),
             );
 
             if (! empty($data['translations'])) {
@@ -30,6 +30,6 @@ class ContactController extends Controller
             }
         });
 
-        return new ContactResource($page->load('translations'));
+        return new ContactResource($page->load(['translations', 'ogImage']));
     }
 }

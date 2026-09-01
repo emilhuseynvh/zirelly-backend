@@ -19,8 +19,8 @@ class ProductController extends Controller
     {
         $products = Product::query()
             ->with(['translations', 'images'])
-            ->withAvg('reviews', 'rating')
-            ->withCount('reviews')
+            ->withAvg('approvedReviews as reviews_avg_rating', 'rating')
+            ->withCount('approvedReviews as reviews_count')
             ->when($request->boolean('active'), fn ($q) => $q->active())
             ->latest('id')
             ->paginate($request->integer('per_page', 15));
@@ -40,6 +40,7 @@ class ProductController extends Controller
                 'discount' => $data['discount'] ?? null,
                 'discount_type' => $data['discount_type'] ?? null,
                 'is_active' => $data['is_active'] ?? true,
+                'og_image_id' => $data['og_image_id'] ?? null,
             ]);
 
             $product->syncTranslations($data['translations']);
@@ -78,7 +79,7 @@ class ProductController extends Controller
 
         DB::transaction(function () use ($data, $product) {
             $product->update(
-                collect($data)->only(['slug', 'price', 'discount', 'discount_type', 'is_active'])->all(),
+                collect($data)->only(['slug', 'price', 'discount', 'discount_type', 'is_active', 'og_image_id'])->all(),
             );
 
             if (! empty($data['translations'])) {
@@ -150,8 +151,8 @@ class ProductController extends Controller
     protected function loadRelations(Product $product): Product
     {
         return $product
-            ->load(['translations', 'images', 'features.translations', 'howToUseSteps.translations'])
-            ->loadAvg('reviews', 'rating')
-            ->loadCount('reviews');
+            ->load(['translations', 'images', 'ogImage', 'features.translations', 'howToUseSteps.translations'])
+            ->loadAvg('approvedReviews as reviews_avg_rating', 'rating')
+            ->loadCount('approvedReviews as reviews_count');
     }
 }

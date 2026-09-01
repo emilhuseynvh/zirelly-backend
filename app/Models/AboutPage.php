@@ -14,11 +14,14 @@ class AboutPage extends Model
     protected $fillable = [
         'hero_image_id',
         'section_image_id',
+        'og_image_id',
     ];
 
     protected array $translatable = [
         'meta_title',
         'meta_description',
+        'og_title',
+        'og_description',
         'hero_title',
         'hero_description',
         'section_title',
@@ -39,6 +42,11 @@ class AboutPage extends Model
     public function heroImage(): BelongsTo
     {
         return $this->belongsTo(Upload::class, 'hero_image_id');
+    }
+
+    public function ogImage(): BelongsTo
+    {
+        return $this->belongsTo(Upload::class, 'og_image_id');
     }
 
     public function sectionImage(): BelongsTo

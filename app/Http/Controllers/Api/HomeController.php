@@ -23,7 +23,7 @@ class HomeController extends Controller
 
         DB::transaction(function () use ($data, $page) {
             $page->update(
-                collect($data)->only(['banner_image_id', 'banner_link'])->all(),
+                collect($data)->only(['banner_image_id', 'banner_link', 'og_image_id'])->all(),
             );
 
             if (! empty($data['translations'])) {
@@ -62,6 +62,7 @@ class HomeController extends Controller
         return $page->load([
             'translations',
             'bannerImage',
+            'ogImage',
             'slides.translations',
             'slides.image',
             'stats.translations',

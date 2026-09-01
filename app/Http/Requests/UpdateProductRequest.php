@@ -29,6 +29,7 @@ class UpdateProductRequest extends FormRequest
             ],
             'discount_type' => ['nullable', 'required_with:discount', Rule::enum(DiscountType::class)],
             'is_active' => ['sometimes', 'boolean'],
+            'og_image_id' => ['nullable', 'integer', Rule::exists('uploads', 'id')],
             'image_ids' => ['sometimes', 'array'],
             'image_ids.*' => ['integer', 'distinct', Rule::exists('uploads', 'id')],
             'translations' => ['sometimes', 'array:'.$codes->implode(',')],

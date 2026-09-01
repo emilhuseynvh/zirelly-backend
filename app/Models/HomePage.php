@@ -14,11 +14,14 @@ class HomePage extends Model
     protected $fillable = [
         'banner_image_id',
         'banner_link',
+        'og_image_id',
     ];
 
     protected array $translatable = [
         'meta_title',
         'meta_description',
+        'og_title',
+        'og_description',
         'stats_title',
         'banner_button_text',
         'testimonials_title',
@@ -43,6 +46,11 @@ class HomePage extends Model
     public function bannerImage(): BelongsTo
     {
         return $this->belongsTo(Upload::class, 'banner_image_id');
+    }
+
+    public function ogImage(): BelongsTo
+    {
+        return $this->belongsTo(Upload::class, 'og_image_id');
     }
 
     public function slides(): HasMany

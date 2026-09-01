@@ -3,10 +3,12 @@
 namespace App\Models;
 
 use App\Enums\OrderStatus;
+use App\Mail\OrderStatusMail;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Mail;
 
 class Order extends Model
 {
@@ -59,6 +61,28 @@ class Order extends Model
             'crm_user_id' => $by?->id,
             'source' => $source,
         ]);
+
+        $this->notifyStatusChange($status, $source);
+    }
+
+    protected function notifyStatusChange(OrderStatus $status, string $source): void
+    {
+        // PaymentService onsuz da Paid keçidində qəbz emaili göndərir — dublikat olmasın
+        if ($status === OrderStatus::Paid && $source === 'system') {
+            return;
+        }
+
+        $email = $this->user?->email ?? $this->contact?->email;
+
+        if (blank($email)) {
+            return;
+        }
+
+        try {
+            Mail::to($email)->send(new OrderStatusMail($this));
+        } catch (\Throwable $e) {
+            report($e);
+        }
     }
 
     public function user(): BelongsTo

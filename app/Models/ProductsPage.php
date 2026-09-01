@@ -13,11 +13,14 @@ class ProductsPage extends Model
 
     protected $fillable = [
         'side_image_id',
+        'og_image_id',
     ];
 
     protected array $translatable = [
         'meta_title',
         'meta_description',
+        'og_title',
+        'og_description',
         'products_title',
     ];
 
@@ -29,6 +32,11 @@ class ProductsPage extends Model
     public function sideImage(): BelongsTo
     {
         return $this->belongsTo(Upload::class, 'side_image_id');
+    }
+
+    public function ogImage(): BelongsTo
+    {
+        return $this->belongsTo(Upload::class, 'og_image_id');
     }
 
     public function slides(): HasMany

@@ -18,6 +18,7 @@ class ProductReviewController extends Controller
     public function index(Request $request, Product $product): AnonymousResourceCollection
     {
         $reviews = $product->reviews()
+            ->approved()
             ->with('user')
             ->latest('id')
             ->paginate($request->integer('per_page', 15));
@@ -39,6 +40,7 @@ class ProductReviewController extends Controller
 
         $review = $product->reviews()->create([
             'user_id' => $request->user()->id,
+            'status' => ProductReview::STATUS_PENDING,
             ...$request->validated(),
         ]);
 
@@ -49,7 +51,10 @@ class ProductReviewController extends Controller
     {
         abort_unless($review->user_id === $request->user()->id, 403);
 
-        $review->update($request->validated());
+        $review->update([
+            ...$request->validated(),
+            'status' => ProductReview::STATUS_PENDING,
+        ]);
 
         return new ProductReviewResource($review->load('user'));
     }

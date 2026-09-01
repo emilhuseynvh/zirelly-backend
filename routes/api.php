@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AboutController;
 use App\Http\Controllers\Api\AdminOrderController;
+use App\Http\Controllers\Api\AdminReviewController;
 use App\Http\Controllers\Api\AdminUserController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CheckoutController;
@@ -121,6 +122,10 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::post('admin/redirects', [RedirectController::class, 'store']);
     Route::put('admin/redirects/{redirect}', [RedirectController::class, 'update']);
     Route::delete('admin/redirects/{redirect}', [RedirectController::class, 'destroy']);
+
+    Route::get('admin/reviews', [AdminReviewController::class, 'index']);
+    Route::put('admin/reviews/{review}', [AdminReviewController::class, 'update']);
+    Route::delete('admin/reviews/{review}', [AdminReviewController::class, 'destroy']);
 
     Route::get('admin/users/export', [AdminUserController::class, 'export']);
     Route::get('admin/users', [AdminUserController::class, 'index']);

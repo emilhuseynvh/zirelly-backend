@@ -20,6 +20,7 @@ class UpdateHomeRequest extends FormRequest
 
         $rules = [
             'banner_image_id' => ['nullable', 'integer', Rule::exists('uploads', 'id')],
+            'og_image_id' => ['nullable', 'integer', Rule::exists('uploads', 'id')],
             'banner_link' => ['nullable', 'string', 'max:255'],
             'translations' => ['sometimes', $langArray],
 
@@ -46,6 +47,8 @@ class UpdateHomeRequest extends FormRequest
             $rules["translations.{$code}"] = ['sometimes', 'array'];
             $rules["translations.{$code}.meta_title"] = ['nullable', 'string', 'max:255'];
             $rules["translations.{$code}.meta_description"] = ['nullable', 'string', 'max:500'];
+            $rules["translations.{$code}.og_title"] = ['nullable', 'string', 'max:255'];
+            $rules["translations.{$code}.og_description"] = ['nullable', 'string', 'max:500'];
             $rules["translations.{$code}.stats_title"] = ['nullable', 'string', 'max:255'];
             $rules["translations.{$code}.banner_button_text"] = ['nullable', 'string', 'max:100'];
             $rules["translations.{$code}.testimonials_title"] = ['nullable', 'string', 'max:255'];

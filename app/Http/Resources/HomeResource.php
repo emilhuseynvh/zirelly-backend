@@ -12,6 +12,9 @@ class HomeResource extends JsonResource
         return [
             'meta_title' => $this->translate('meta_title'),
             'meta_description' => $this->translate('meta_description'),
+            'og_title' => $this->translate('og_title'),
+            'og_description' => $this->translate('og_description'),
+            'og_image' => new UploadResource($this->whenLoaded('ogImage')),
             'slides' => HomeSlideResource::collection($this->whenLoaded('slides')),
             'stats' => [
                 'title' => $this->translate('stats_title'),

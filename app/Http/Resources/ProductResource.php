@@ -17,6 +17,8 @@ class ProductResource extends JsonResource
             'meta_description' => $this->translate('meta_description'),
             'og_title' => $this->translate('og_title'),
             'og_description' => $this->translate('og_description'),
+            'og_image' => new UploadResource($this->whenLoaded('ogImage')),
+            'og_image_id' => $this->og_image_id,
             'description' => $this->translate('description'),
             'price' => (float) $this->price,
             'discount' => $this->discount !== null ? (float) $this->discount : null,
