@@ -8,8 +8,9 @@ STAMP="$(date +%Y-%m-%d_%H%M)"
 
 mkdir -p "$BACKUP_DIR"
 
+# .env sətirlərinin əvvəlindəki boşluqlara dözümlüdür (məs. " DB_HOST=...")
 env_val() {
-  grep -E "^$1=" "$APP_DIR/.env" | head -1 | cut -d= -f2- | tr -d '"'
+  grep -E "^[[:space:]]*$1=" "$APP_DIR/.env" | head -1 | sed -E "s/^[[:space:]]*$1=//" | tr -d '"'
 }
 
 CONNECTION="$(env_val DB_CONNECTION)"
