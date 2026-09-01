@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 class Order extends Model
@@ -75,11 +76,21 @@ class Order extends Model
         $email = $this->user?->email ?? $this->contact?->email;
 
         if (blank($email)) {
+            Log::info("Order #{$this->id}: status email skipped — no user/contact email", [
+                'status' => $status->value,
+                'source' => $source,
+            ]);
+
             return;
         }
 
         try {
             Mail::to($email)->send(new OrderStatusMail($this));
+
+            Log::info("Order #{$this->id}: status email sent to {$email}", [
+                'status' => $status->value,
+                'source' => $source,
+            ]);
         } catch (\Throwable $e) {
             report($e);
         }
