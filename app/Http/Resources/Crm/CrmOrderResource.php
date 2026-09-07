@@ -17,6 +17,10 @@ class CrmOrderResource extends JsonResource
         return [
             'id' => $this->id,
             'status' => $this->status->value,
+            'receipt_status' => $this->receipt_status,
+            'assignee' => $this->assignee
+                ? ['id' => $this->assignee->id, 'name' => $this->assignee->name]
+                : null,
             'channel' => $this->channel,
             'contact_id' => $this->contact_id,
             'customer' => $customerName !== '' ? $customerName : null,

@@ -15,10 +15,24 @@ class Order extends Model
 {
     use SoftDeletes;
 
+    public const RECEIPT_PENDING = 'pending';
+
+    public const RECEIPT_REGISTERED = 'registered';
+
+    public const RECEIPT_SENT = 'sent';
+
+    public const RECEIPT_STATUSES = [
+        self::RECEIPT_PENDING,
+        self::RECEIPT_REGISTERED,
+        self::RECEIPT_SENT,
+    ];
+
     protected $fillable = [
         'user_id',
         'contact_id',
+        'crm_assignee_id',
         'status',
+        'receipt_status',
         'channel',
         'subtotal',
         'discount_amount',
@@ -119,6 +133,11 @@ class Order extends Model
     public function contact(): BelongsTo
     {
         return $this->belongsTo(Contact::class);
+    }
+
+    public function assignee(): BelongsTo
+    {
+        return $this->belongsTo(CrmUser::class, 'crm_assignee_id');
     }
 
     public function statusHistories(): HasMany

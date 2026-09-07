@@ -22,17 +22,28 @@ class OrderController extends Controller
     public function index(Request $request): AnonymousResourceCollection
     {
         $orders = $this->filteredQuery($request)
-            ->with(['contact', 'user'])
+            ->with(['contact', 'user', 'assignee'])
             ->withCount('items')
             ->paginate($request->integer('per_page', 20));
 
         return CrmOrderResource::collection($orders);
     }
 
+    public function assignees(): JsonResponse
+    {
+        // Filtr dropdown-u üçün minimal siyahı — superadmin olmayanlar da görə bilir
+        return response()->json([
+            'data' => \App\Models\CrmUser::query()
+                ->orderBy('name')
+                ->get(['id', 'name', 'is_active'])
+                ->map(fn ($u) => ['id' => $u->id, 'name' => $u->name, 'is_active' => $u->is_active]),
+        ]);
+    }
+
     public function show(Order $order): CrmOrderResource
     {
         return new CrmOrderResource(
-            $order->load(['contact', 'user', 'items.product.images', 'statusHistories.changedBy']),
+            $order->load(['contact', 'user', 'assignee', 'items.product.images', 'statusHistories.changedBy']),
         );
     }
 
@@ -161,6 +172,55 @@ class OrderController extends Controller
         return new CrmOrderResource($order->load(['contact', 'user', 'statusHistories.changedBy']));
     }
 
+    public function updateAssignee(Request $request, Order $order): CrmOrderResource
+    {
+        $data = $request->validate([
+            'assignee_id' => ['nullable', 'integer', Rule::exists('crm_users', 'id')->whereNull('deleted_at')],
+        ]);
+
+        $user = $request->user();
+        $assigneeId = $data['assignee_id'] ?? null;
+
+        // Superadmin olmayan əməkdaş məsuliyyəti yalnız öz üzərinə götürə bilər —
+        // başqasının üzərinə ata bilməz; boşaltmağı da yalnız öz sifarişində edə bilər
+        if (! $user->isSuperadmin()) {
+            if ($assigneeId !== null && (int) $assigneeId !== $user->id) {
+                abort(403, 'Məsul şəxs olaraq yalnız özünüzü seçə bilərsiniz.');
+            }
+
+            if ($assigneeId === null && $order->crm_assignee_id !== null && $order->crm_assignee_id !== $user->id) {
+                abort(403, 'Başqa əməkdaşın üzərindəki sifarişi boşalda bilməzsiniz.');
+            }
+        }
+
+        $from = $order->crm_assignee_id;
+        $order->update(['crm_assignee_id' => $assigneeId]);
+
+        AuditLog::record($user, 'order_assignee_changed', $order, [
+            'from' => $from,
+            'to' => $assigneeId,
+        ]);
+
+        return new CrmOrderResource($order->load(['contact', 'user', 'assignee', 'statusHistories.changedBy']));
+    }
+
+    public function updateReceiptStatus(Request $request, Order $order): CrmOrderResource
+    {
+        $request->validate([
+            'receipt_status' => ['required', Rule::in(Order::RECEIPT_STATUSES)],
+        ]);
+
+        $from = $order->receipt_status;
+        $order->update(['receipt_status' => $request->input('receipt_status')]);
+
+        AuditLog::record($request->user(), 'order_receipt_status_changed', $order, [
+            'from' => $from,
+            'to' => $order->receipt_status,
+        ]);
+
+        return new CrmOrderResource($order->load(['contact', 'user', 'assignee', 'statusHistories.changedBy']));
+    }
+
     public function destroy(Request $request, Order $order): JsonResponse
     {
         $order->delete();
@@ -173,9 +233,15 @@ class OrderController extends Controller
     public function export(Request $request): StreamedResponse
     {
         $orders = $this->filteredQuery($request)
-            ->with(['contact', 'user', 'items'])
+            ->with(['contact', 'user', 'assignee', 'items'])
             ->withCount('items')
             ->get();
+
+        $receiptLabels = [
+            Order::RECEIPT_PENDING => 'Gözləyir',
+            Order::RECEIPT_REGISTERED => 'Kassaya vuruldu',
+            Order::RECEIPT_SENT => 'Müştəriyə göndərildi',
+        ];
 
         $statusLabels = [
             'pending' => 'Gözləyir',
@@ -189,13 +255,13 @@ class OrderController extends Controller
 
         $filename = 'crm-sifarisler-'.now()->format('Y-m-d-Hi').'.csv';
 
-        return response()->streamDownload(function () use ($orders, $statusLabels) {
+        return response()->streamDownload(function () use ($orders, $statusLabels, $receiptLabels) {
             $out = fopen('php://output', 'w');
             fwrite($out, "\xEF\xBB\xBF");
 
             fputcsv($out, [
-                'Sifariş №', 'Tarix', 'Müştəri', 'Telefon', 'Kanal', 'Status', 'Məhsullar',
-                'Say', 'Ara cəm', 'Endirim', 'Promokod', 'Çatdırılma', 'Yekun', 'Ünvan', 'Qeyd',
+                'Sifariş №', 'Tarix', 'Müştəri', 'Telefon', 'Kanal', 'Status', 'Məsul şəxs', 'Məhsullar',
+                'Say', 'Ara cəm', 'Endirim', 'Promokod', 'Çatdırılma', 'Yekun', 'Çek statusu', 'Ünvan', 'Qeyd',
             ]);
 
             foreach ($orders as $order) {
@@ -210,6 +276,7 @@ class OrderController extends Controller
                     $order->contact?->phone ?? $order->user?->phone,
                     $order->channel,
                     $statusLabels[$order->status->value] ?? $order->status->value,
+                    $order->assignee?->name,
                     $order->items->map(fn ($i) => $i->title.' ×'.$i->quantity)->implode('; '),
                     $order->items->sum('quantity'),
                     number_format((float) $order->subtotal, 2, '.', ''),
@@ -217,6 +284,7 @@ class OrderController extends Controller
                     $order->promocode_code,
                     number_format((float) $order->delivery_fee, 2, '.', ''),
                     number_format((float) $order->total + (float) $order->delivery_fee, 2, '.', ''),
+                    $receiptLabels[$order->receipt_status] ?? $order->receipt_status,
                     $order->address,
                     $order->note,
                 ]);
@@ -230,6 +298,12 @@ class OrderController extends Controller
     {
         $request->validate([
             'status' => ['sometimes', Rule::enum(OrderStatus::class)],
+            'receipt_status' => ['sometimes', Rule::in(Order::RECEIPT_STATUSES)],
+            'assignee_id' => ['sometimes', function ($attribute, $value, $fail) {
+                if ($value !== 'none' && ! ctype_digit((string) $value)) {
+                    $fail('Məsul şəxs filtri yanlışdır.');
+                }
+            }],
             'channel' => ['sometimes', Rule::in(Contact::CHANNELS)],
             'search' => ['sometimes', 'string', 'max:100'],
             'from' => ['sometimes', 'date'],
@@ -241,6 +315,14 @@ class OrderController extends Controller
 
         return Order::query()
             ->when($request->filled('status'), fn ($q) => $q->where('status', $request->input('status')))
+            ->when($request->filled('receipt_status'), fn ($q) => $q->where('receipt_status', $request->input('receipt_status')))
+            ->when($request->filled('assignee_id'), function ($q) use ($request) {
+                $value = $request->input('assignee_id');
+
+                $value === 'none'
+                    ? $q->whereNull('crm_assignee_id')
+                    : $q->where('crm_assignee_id', (int) $value);
+            })
             ->when($request->filled('channel'), fn ($q) => $q->where('channel', $request->input('channel')))
             ->when($request->filled('from'), fn ($q) => $q->whereDate('created_at', '>=', $request->input('from')))
             ->when($request->filled('to'), fn ($q) => $q->whereDate('created_at', '<=', $request->input('to')))

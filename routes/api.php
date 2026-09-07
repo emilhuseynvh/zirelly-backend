@@ -167,11 +167,14 @@ Route::prefix('crm')->group(function () {
 
         Route::middleware('crm.section:orders')->group(function () {
             Route::get('orders/export', [CrmOrderController::class, 'export']);
+            Route::get('orders/assignees', [CrmOrderController::class, 'assignees']);
             Route::get('orders', [CrmOrderController::class, 'index']);
             Route::post('orders', [CrmOrderController::class, 'store']);
             Route::get('orders/{order}', [CrmOrderController::class, 'show'])->whereNumber('order');
             Route::put('orders/{order}', [CrmOrderController::class, 'update'])->whereNumber('order');
             Route::put('orders/{order}/status', [CrmOrderController::class, 'updateStatus'])->whereNumber('order');
+            Route::put('orders/{order}/assignee', [CrmOrderController::class, 'updateAssignee'])->whereNumber('order');
+            Route::put('orders/{order}/receipt-status', [CrmOrderController::class, 'updateReceiptStatus'])->whereNumber('order');
             Route::delete('orders/{order}', [CrmOrderController::class, 'destroy'])
                 ->whereNumber('order')
                 ->middleware('crm.superadmin');
