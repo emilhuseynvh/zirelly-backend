@@ -34,6 +34,7 @@ class CrmOrderResource extends JsonResource
             'grand_total' => round((float) $this->total + (float) $this->delivery_fee, 2),
             'promocode_code' => $this->promocode_code,
             'address' => $this->address,
+            'address_note' => $this->address_note,
             'note' => $this->note,
             'paid_at' => $this->paid_at?->toIso8601String(),
             'created_at' => $this->created_at?->toIso8601String(),

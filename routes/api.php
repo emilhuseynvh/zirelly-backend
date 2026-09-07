@@ -57,6 +57,11 @@ Route::apiResource('blogs', BlogController::class)->only(['index', 'show']);
 Route::get('home', [HomeController::class, 'show']);
 Route::get('about', [AboutController::class, 'show']);
 Route::get('contact', [ContactController::class, 'show']);
+Route::get('delivery-locations', fn () => response()->json([
+    'cities' => \App\Support\DeliveryLocations::CITIES,
+    'baku' => \App\Support\DeliveryLocations::BAKU,
+    'baku_districts' => \App\Support\DeliveryLocations::BAKU_DISTRICTS,
+]));
 Route::get('products-page', [ProductsPageController::class, 'show']);
 Route::get('popup', [PopupController::class, 'show']);
 Route::get('legal/{slug}', [LegalPageController::class, 'show']);

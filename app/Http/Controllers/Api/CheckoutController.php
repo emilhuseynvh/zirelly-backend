@@ -8,6 +8,7 @@ use App\Http\Requests\CheckoutRequest;
 use App\Http\Resources\OrderResource;
 use App\Models\Promocode;
 use App\Services\PaymentService;
+use App\Support\DeliveryLocations;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 
@@ -50,10 +51,27 @@ class CheckoutController extends Controller
             $discount = $promocode->discountFor($subtotal);
         }
 
-        $order = DB::transaction(function () use ($request, $user, $basketItems, $subtotal, $discount, $promocode) {
+        // Struktur ünvan gələndə vahid sətir server tərəfdə qurulur
+        $address = $request->filled('address_city')
+            ? DeliveryLocations::compose(
+                $request->input('address_city'),
+                $request->input('address_district'),
+                $request->input('address_street'),
+                $request->input('address_building'),
+                $request->input('address_apartment'),
+            )
+            : $request->input('address');
+
+        $order = DB::transaction(function () use ($request, $user, $basketItems, $subtotal, $discount, $promocode, $address) {
             $order = $user->orders()->create([
                 'status' => OrderStatus::Pending,
-                'address' => $request->input('address'),
+                'address' => $address,
+                'address_city' => $request->input('address_city'),
+                'address_district' => $request->input('address_district'),
+                'address_street' => $request->input('address_street'),
+                'address_building' => $request->input('address_building'),
+                'address_apartment' => $request->input('address_apartment'),
+                'address_note' => $request->input('address_note'),
                 'subtotal' => $subtotal,
                 'discount_amount' => $discount,
                 'total' => round($subtotal - $discount, 2),

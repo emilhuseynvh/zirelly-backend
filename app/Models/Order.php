@@ -41,6 +41,12 @@ class Order extends Model
         'promocode_id',
         'promocode_code',
         'address',
+        'address_city',
+        'address_district',
+        'address_street',
+        'address_building',
+        'address_apartment',
+        'address_note',
         'note',
         'paid_at',
     ];
