@@ -42,6 +42,11 @@ class CheckoutController extends Controller
                 return response()->json(['message' => Promocode::errorMessage($error)], 422);
             }
 
+            // Öz endirimi olan məhsulun üstünə promokod gəlmir
+            if ($basketItems->contains(fn ($item) => $item->product->hasDiscount())) {
+                return response()->json(['message' => __('messages.promocode_discounted_products')], 422);
+            }
+
             $discount = $promocode->discountFor($subtotal);
         }
 

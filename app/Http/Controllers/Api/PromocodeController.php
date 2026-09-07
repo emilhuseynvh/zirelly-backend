@@ -74,14 +74,17 @@ class PromocodeController extends Controller
             return response()->json(['valid' => false, 'message' => Promocode::errorMessage($error)], 422);
         }
 
-        $subtotal = round(
-            $user->basketItems()
-                ->with('product')
-                ->get()
-                ->filter(fn ($item) => $item->product !== null && $item->product->is_active)
-                ->sum(fn ($item) => $item->lineTotal()),
-            2,
-        );
+        $basketItems = $user->basketItems()
+            ->with('product')
+            ->get()
+            ->filter(fn ($item) => $item->product !== null && $item->product->is_active);
+
+        // Öz endirimi olan məhsulun üstünə promokod gəlmir
+        if ($basketItems->contains(fn ($item) => $item->product->hasDiscount())) {
+            return response()->json(['valid' => false, 'message' => __('messages.promocode_discounted_products')], 422);
+        }
+
+        $subtotal = round($basketItems->sum(fn ($item) => $item->lineTotal()), 2);
 
         $discount = $promocode->discountFor($subtotal);
 

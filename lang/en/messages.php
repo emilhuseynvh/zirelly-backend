@@ -9,6 +9,7 @@ return [
     'promocode_first_order_only' => 'This promocode is only valid for your first order.',
     'promocode_already_used' => 'You have already used this promocode.',
     'promocode_invalid' => 'This promocode cannot be applied.',
+    'promocode_discounted_products' => 'The promocode cannot be applied because your basket contains discounted products.',
     'message_sent' => 'Your message has been sent successfully.',
     'logged_out' => 'Logged out.',
     'email_verified' => 'Email verified successfully.',

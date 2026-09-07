@@ -9,6 +9,7 @@ return [
     'promocode_first_order_only' => 'Bu promokod yalnız ilk sifariş üçün keçərlidir.',
     'promocode_already_used' => 'Bu promokodu artıq istifadə etmisiniz.',
     'promocode_invalid' => 'Bu promokod tətbiq oluna bilməz.',
+    'promocode_discounted_products' => 'Səbətinizdə endirimli məhsul olduğundan promokod tətbiq edilmir.',
     'message_sent' => 'Mesajınız uğurla göndərildi.',
     'logged_out' => 'Hesabdan çıxış edildi.',
     'email_verified' => 'E-poçt uğurla təsdiqləndi.',
