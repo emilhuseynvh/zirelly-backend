@@ -34,15 +34,27 @@ class RegisterRequest extends FormRequest
 
     public function messages(): array
     {
-        return ['phone.regex' => __('messages.phone_invalid')];
+        return [
+            'phone.regex' => __('messages.phone_invalid'),
+            'phone.unique' => __('messages.phone_taken'),
+        ];
     }
 
     public function rules(): array
     {
+        // Eyni e-poçtla təsdiqlənməmiş qeyd varsa, register onu yeniləyir —
+        // telefon unikallığında məhz o sətir nəzərə alınmamalıdır. Qalan BÜTÜN
+        // istifadəçilərlə yoxlanılır, çünki DB-dəki unique indeks hamını əhatə edir
+        // (əvvəl yalnız təsdiqlənmişlərlə yoxlanırdı və toqquşma 500 verirdi).
+        $pendingId = \App\Models\User::query()
+            ->where('email', (string) $this->input('email'))
+            ->whereNull('email_verified_at')
+            ->value('id');
+
         return [
             'name' => ['required', 'string', 'max:100'],
             'surname' => ['required', 'string', 'max:100'],
-            'phone' => ['required', 'string', 'max:20', 'regex:'.Phone::AZ_PATTERN, Rule::unique('users', 'phone')->whereNotNull('email_verified_at')],
+            'phone' => ['required', 'string', 'max:20', 'regex:'.Phone::AZ_PATTERN, Rule::unique('users', 'phone')->ignore($pendingId)],
             'birth_date' => ['required', 'date', 'before:today'],
             'address' => ['required', 'string', 'max:1000'],
             'address_city' => ['sometimes', 'required', 'string', 'max:100'],
