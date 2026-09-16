@@ -21,6 +21,12 @@ class Contact extends Model
         'email',
         'birth_date',
         'address',
+        'address_city',
+        'address_district',
+        'address_street',
+        'address_building',
+        'address_apartment',
+        'address_note',
         'channel',
         'created_via',
     ];
@@ -63,24 +69,32 @@ class Contact extends Model
             })
             ->first();
 
+        $data = [
+            'user_id' => $user->id,
+            'name' => $user->name,
+            'surname' => $user->surname,
+            'phone' => $user->phone,
+            'email' => $user->email,
+            'birth_date' => $user->birth_date,
+            'address' => $user->address,
+            'address_city' => $user->address_city ?? null,
+            'address_district' => $user->address_district ?? null,
+            'address_street' => $user->address_street ?? null,
+            'address_building' => $user->address_building ?? null,
+            'address_apartment' => $user->address_apartment ?? null,
+            'address_note' => $user->address_note ?? null,
+        ];
+
         if ($contact === null) {
             return static::query()->create([
-                'user_id' => $user->id,
-                'name' => $user->name,
-                'surname' => $user->surname,
-                'phone' => $user->phone,
-                'email' => $user->email,
-                'birth_date' => $user->birth_date,
-                'address' => $user->address,
+                ...$data,
                 'channel' => 'website',
                 'created_via' => 'site',
             ]);
         }
 
         $contact->fill([
-            'user_id' => $user->id,
-            'name' => $user->name,
-            'surname' => $user->surname,
+            ...$data,
             'phone' => $contact->phone ?? $user->phone,
             'email' => $contact->email ?? $user->email,
             'birth_date' => $contact->birth_date ?? $user->birth_date,

@@ -25,10 +25,13 @@ class AuthController extends Controller
     {
         $data = $request->validated();
 
+        $columns = \Illuminate\Support\Facades\Schema::getColumnListing('users');
+        $dataToSave = array_intersect_key($data, array_flip($columns));
+
         // Təsdiqlənməmiş eyni e-poçtla təkrar qeydiyyat mövcud qeydi yeniləyir
         $user = User::updateOrCreate(
             ['email' => $data['email']],
-            [...$data, 'email_verified_at' => null],
+            [...$dataToSave, 'email_verified_at' => null],
         );
 
         $this->sendOtp($user->email, OtpCode::TYPE_REGISTER);

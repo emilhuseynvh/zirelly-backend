@@ -26,7 +26,10 @@ class ProfileController extends Controller
             $data['email_verified_at'] = null;
         }
 
-        $user->forceFill($data)->save();
+        $columns = \Illuminate\Support\Facades\Schema::getColumnListing('users');
+        $dataToSave = array_intersect_key($data, array_flip($columns));
+
+        $user->forceFill($dataToSave)->save();
 
         if ($emailChanged) {
             $user->sendEmailVerificationNotification();
