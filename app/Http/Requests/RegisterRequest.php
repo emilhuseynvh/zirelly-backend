@@ -20,6 +20,11 @@ class RegisterRequest extends FormRequest
             $this->merge(['phone' => Phone::normalize((string) $this->input('phone'))]);
         }
 
+        // Bakı deyilsə inzibati rayon nəzərə alınmır
+        if ($this->input('address_city') !== \App\Support\DeliveryLocations::BAKU) {
+            $this->merge(['address_district' => null]);
+        }
+
         if ($this->filled('address_city') && $this->filled('address_street') && $this->filled('address_building')) {
             $composed = \App\Support\DeliveryLocations::compose(
                 (string) $this->input('address_city'),
@@ -37,6 +42,13 @@ class RegisterRequest extends FormRequest
         return [
             'phone.regex' => __('messages.phone_invalid'),
             'phone.unique' => __('messages.phone_taken'),
+            'address.required' => __('messages.address_required'),
+            'address_city.required' => __('messages.address_city_required'),
+            'address_city.in' => __('messages.address_city_invalid'),
+            'address_district.required' => __('messages.address_district_required'),
+            'address_district.in' => __('messages.address_district_invalid'),
+            'address_street.required' => __('messages.address_street_required'),
+            'address_building.required' => __('messages.address_building_required'),
         ];
     }
 
@@ -56,11 +68,16 @@ class RegisterRequest extends FormRequest
             'surname' => ['required', 'string', 'max:100'],
             'phone' => ['required', 'string', 'max:20', 'regex:'.Phone::AZ_PATTERN, Rule::unique('users', 'phone')->ignore($pendingId)],
             'birth_date' => ['required', 'date', 'before:today'],
+            // Vahid "address" sətri prepareForValidation-da struktur sahələrdən qurulur
             'address' => ['required', 'string', 'max:1000'],
-            'address_city' => ['sometimes', 'required', 'string', 'max:100'],
-            'address_district' => ['nullable', 'string', 'max:100'],
-            'address_street' => ['sometimes', 'required', 'string', 'max:255'],
-            'address_building' => ['sometimes', 'required', 'string', 'max:50'],
+            'address_city' => ['required', Rule::in(\App\Support\DeliveryLocations::CITIES)],
+            'address_district' => [
+                Rule::requiredIf(fn () => $this->input('address_city') === \App\Support\DeliveryLocations::BAKU),
+                'nullable',
+                Rule::in(\App\Support\DeliveryLocations::BAKU_DISTRICTS),
+            ],
+            'address_street' => ['required', 'string', 'max:255'],
+            'address_building' => ['required', 'string', 'max:50'],
             'address_apartment' => ['nullable', 'string', 'max:50'],
             'address_note' => ['nullable', 'string', 'max:500'],
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->whereNotNull('email_verified_at')],
