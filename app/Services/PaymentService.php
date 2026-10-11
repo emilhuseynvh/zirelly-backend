@@ -38,7 +38,7 @@ class PaymentService
         $transaction = $order->transactions()->create([
             'status' => TransactionStatus::Pending,
             'method' => 'unitedpayment',
-            'amount' => $order->total,
+            'amount' => round((float) $order->total + (float) $order->delivery_fee, 2),
             'reference' => $clientOrderId,
             'payload' => ['return_token_hash' => hash('sha256', $returnToken)],
         ]);
@@ -164,7 +164,7 @@ class PaymentService
         $user = $order->user;
 
         $payload = [
-            'amount' => round((float) $order->total, 2),
+            'amount' => round((float) $order->total + (float) $order->delivery_fee, 2),
             'language' => $this->gateway->checkoutLanguage(),
             'successUrl' => $returnUrl,
             'cancelUrl' => $returnUrl,

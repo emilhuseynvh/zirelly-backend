@@ -57,11 +57,26 @@ Route::apiResource('blogs', BlogController::class)->only(['index', 'show']);
 Route::get('home', [HomeController::class, 'show']);
 Route::get('about', [AboutController::class, 'show']);
 Route::get('contact', [ContactController::class, 'show']);
-Route::get('delivery-locations', fn () => response()->json([
-    'cities' => \App\Support\DeliveryLocations::CITIES,
-    'baku' => \App\Support\DeliveryLocations::BAKU,
-    'baku_districts' => \App\Support\DeliveryLocations::BAKU_DISTRICTS,
-]));
+Route::get('delivery-locations', function () {
+    $settings = \App\Models\DeliverySetting::current();
+
+    return response()->json([
+        'cities' => \App\Support\DeliveryLocations::CITIES,
+        'baku' => \App\Support\DeliveryLocations::BAKU,
+        'baku_districts' => \App\Support\DeliveryLocations::BAKU_DISTRICTS,
+        'zones' => [
+            'nakhchivan' => \App\Support\DeliveryLocations::NAKHCHIVAN,
+            'karabakh' => \App\Support\DeliveryLocations::KARABAKH,
+        ],
+        'fees' => [
+            'baku_fee' => (float) $settings->baku_fee,
+            'baku_free_threshold' => (float) $settings->baku_free_threshold,
+            'region_fee' => (float) $settings->region_fee,
+            'nakhchivan_fee' => (float) $settings->nakhchivan_fee,
+            'karabakh_fee' => (float) $settings->karabakh_fee,
+        ],
+    ]);
+});
 Route::get('products-page', [ProductsPageController::class, 'show']);
 Route::get('popup', [PopupController::class, 'show']);
 Route::get('legal/{slug}', [LegalPageController::class, 'show']);
@@ -123,6 +138,8 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
 
     Route::apiResource('promocodes', PromocodeController::class);
 
+    Route::get('admin/delivery-settings', [\App\Http\Controllers\Api\DeliverySettingController::class, 'show']);
+    Route::put('admin/delivery-settings', [\App\Http\Controllers\Api\DeliverySettingController::class, 'update']);
     Route::get('admin/redirects', [RedirectController::class, 'adminIndex']);
     Route::post('admin/redirects', [RedirectController::class, 'store']);
     Route::put('admin/redirects/{redirect}', [RedirectController::class, 'update']);

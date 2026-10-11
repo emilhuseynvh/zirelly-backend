@@ -15,6 +15,8 @@ class OrderResource extends JsonResource
             'subtotal' => (float) $this->subtotal,
             'discount_amount' => (float) $this->discount_amount,
             'total' => (float) $this->total,
+            'delivery_fee' => (float) $this->delivery_fee,
+            'grand_total' => round((float) $this->total + (float) $this->delivery_fee, 2),
             'promocode_code' => $this->promocode_code,
             'items_count' => (int) ($this->items_count ?? ($this->relationLoaded('items') ? $this->items->count() : 0)),
             'paid_at' => $this->paid_at?->toIso8601String(),

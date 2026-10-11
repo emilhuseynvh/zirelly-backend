@@ -62,9 +62,19 @@ class CheckoutController extends Controller
             )
             : $request->input('address');
 
-        $order = DB::transaction(function () use ($request, $user, $basketItems, $subtotal, $discount, $promocode, $address) {
+        // Çatdırılma haqqı ünvana və malların yekununa görə (admin paneldən idarə olunur)
+        $deliveryFee = $request->filled('address_city')
+            ? DeliveryLocations::feeFor(
+                $request->input('address_city'),
+                round($subtotal - $discount, 2),
+                \App\Models\DeliverySetting::current(),
+            )
+            : 0.0;
+
+        $order = DB::transaction(function () use ($request, $user, $basketItems, $subtotal, $discount, $promocode, $address, $deliveryFee) {
             $order = $user->orders()->create([
                 'status' => OrderStatus::Pending,
+                'delivery_fee' => $deliveryFee,
                 'address' => $address,
                 'address_city' => $request->input('address_city'),
                 'address_district' => $request->input('address_district'),
