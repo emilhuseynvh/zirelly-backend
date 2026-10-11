@@ -27,6 +27,13 @@ class DeliverySetting extends Model
 
     public static function current(): self
     {
-        return static::query()->firstOrCreate([]);
+        // Defaultlar açıq verilir: yeni yaradılan modeldə DB defaultları yaddaşa oxunmur
+        return static::query()->firstOrCreate([], [
+            'baku_fee' => 5,
+            'baku_free_threshold' => 70,
+            'region_fee' => 10,
+            'nakhchivan_fee' => 15,
+            'karabakh_fee' => 10,
+        ]);
     }
 }
