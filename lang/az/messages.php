@@ -17,6 +17,7 @@ return [
     'address_district_invalid' => 'İnzibati rayon siyahıdan seçilməlidir.',
     'address_street_required' => 'Küçə / prospekt / qəsəbə qeyd edin.',
     'address_building_required' => 'Ev / bina nömrəsini qeyd edin.',
+    'address_note_required' => 'Əlavə qeydi doldurun (blok, mərtəbə, domofon və s.).',
     'message_sent' => 'Mesajınız uğurla göndərildi.',
     'logged_out' => 'Hesabdan çıxış edildi.',
     'email_verified' => 'E-poçt uğurla təsdiqləndi.',

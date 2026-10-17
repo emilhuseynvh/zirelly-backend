@@ -49,6 +49,7 @@ class RegisterRequest extends FormRequest
             'address_district.in' => __('messages.address_district_invalid'),
             'address_street.required' => __('messages.address_street_required'),
             'address_building.required' => __('messages.address_building_required'),
+            'address_note.required' => __('messages.address_note_required'),
         ];
     }
 
@@ -79,7 +80,7 @@ class RegisterRequest extends FormRequest
             'address_street' => ['required', 'string', 'max:255'],
             'address_building' => ['required', 'string', 'max:50'],
             'address_apartment' => ['nullable', 'string', 'max:50'],
-            'address_note' => ['nullable', 'string', 'max:500'],
+            'address_note' => ['required', 'string', 'max:500'],
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->whereNotNull('email_verified_at')],
             'password' => ['required', 'confirmed', Password::defaults()],
         ];

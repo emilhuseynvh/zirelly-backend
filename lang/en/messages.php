@@ -17,6 +17,7 @@ return [
     'address_district_invalid' => 'The administrative district must be selected from the list.',
     'address_street_required' => 'Please enter the street / avenue / settlement.',
     'address_building_required' => 'Please enter the house / building number.',
+    'address_note_required' => 'Please fill in the additional note (block, floor, intercom, etc.).',
     'message_sent' => 'Your message has been sent successfully.',
     'logged_out' => 'Logged out.',
     'email_verified' => 'Email verified successfully.',
