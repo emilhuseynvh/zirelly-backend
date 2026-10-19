@@ -261,7 +261,7 @@ class OrderController extends Controller
 
             fputcsv($out, [
                 'Sifariş №', 'Tarix', 'Müştəri', 'Telefon', 'Kanal', 'Status', 'Məsul şəxs', 'Məhsullar',
-                'Say', 'Ara cəm', 'Endirim', 'Promokod', 'Çatdırılma', 'Yekun', 'Çek statusu', 'Ünvan', 'Ünvan qeydi', 'Qeyd',
+                'Say', 'Ara cəm', 'Endirim', 'Promokod', 'Məhsulların məbləği', 'Çatdırılma haqqı', 'Ümumi ödəniş', 'Çek statusu', 'Ünvan', 'Ünvan qeydi', 'Qeyd',
             ]);
 
             foreach ($orders as $order) {
@@ -282,6 +282,7 @@ class OrderController extends Controller
                     number_format((float) $order->subtotal, 2, '.', ''),
                     number_format((float) $order->discount_amount, 2, '.', ''),
                     $order->promocode_code,
+                    number_format((float) $order->total, 2, '.', ''),
                     number_format((float) $order->delivery_fee, 2, '.', ''),
                     number_format((float) $order->total + (float) $order->delivery_fee, 2, '.', ''),
                     $receiptLabels[$order->receipt_status] ?? $order->receipt_status,

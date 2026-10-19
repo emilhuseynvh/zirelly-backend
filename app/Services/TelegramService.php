@@ -30,7 +30,10 @@ class TelegramService
             $header,
             '',
             '🧾 Sifariş: <b>#'.$order->id.'</b>',
-            '💰 Məbləğ: <b>'.number_format((float) $order->total, 2).' AZN</b>',
+            '🛍 Məhsulların məbləği: '.number_format((float) $order->total, 2).' AZN',
+            '🚚 Çatdırılma haqqı: '.number_format((float) $order->delivery_fee, 2).' AZN',
+            '💰 Ümumi ödəniş: <b>'.number_format((float) $order->total + (float) $order->delivery_fee, 2).' AZN</b>',
+            '',
         ];
 
         if ($customer !== '') {
