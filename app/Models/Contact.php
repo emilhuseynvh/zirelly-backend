@@ -93,12 +93,14 @@ class Contact extends Model
             ]);
         }
 
+        // Saytdakı hesab məlumatı (email OTP ilə təsdiqlənib) CRM-də əl ilə yazılandan
+        // etibarlıdır — kontaktın köhnə dəyəri yalnız hesabda boş olan sahədə qalır.
         $contact->fill([
             ...$data,
-            'phone' => $contact->phone ?? $user->phone,
-            'email' => $contact->email ?? $user->email,
-            'birth_date' => $contact->birth_date ?? $user->birth_date,
-            'address' => $contact->address ?? $user->address,
+            'phone' => filled($user->phone) ? $user->phone : $contact->phone,
+            'email' => filled($user->email) ? $user->email : $contact->email,
+            'birth_date' => $user->birth_date ?? $contact->birth_date,
+            'address' => filled($user->address) ? $user->address : $contact->address,
         ])->save();
 
         return $contact;

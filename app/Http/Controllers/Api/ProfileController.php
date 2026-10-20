@@ -31,6 +31,18 @@ class ProfileController extends Controller
 
         $user->forceFill($dataToSave)->save();
 
+        // Müştərinin CRM kartı da yenilənsin (telefon, ünvan və s.)
+        if ($user->hasVerifiedEmail()) {
+            try {
+                \App\Models\Contact::syncFromUser($user);
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Contact sync on profile update failed', [
+                    'user_id' => $user->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+
         if ($emailChanged) {
             $user->sendEmailVerificationNotification();
         }
