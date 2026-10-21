@@ -143,7 +143,7 @@ class UnitedPaymentService
             return 'HTTP '.$response->status().' - blocked by United Payment firewall (support ID: '.($match[1] ?? '?').')';
         }
 
-        $message = $response->json('message') ?? $response->json('title') ?? 'Unknown error';
+        $message = $response->json('message') ?? $response->json('err') ?? $response->json('title') ?? 'Unknown error';
 
         return 'HTTP '.$response->status().' - '.$message;
     }
