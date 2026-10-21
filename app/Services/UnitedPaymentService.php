@@ -136,6 +136,13 @@ class UnitedPaymentService
 
     private function safeErrorSummary(Response $response): string
     {
+        // Provayderin firewall-u JSON yox, HTML "Request Rejected" səhifəsi qaytarır (HTTP 200)
+        if (str_contains($response->body(), 'Request Rejected')) {
+            preg_match('/support ID is:\s*(\d+)/i', $response->body(), $match);
+
+            return 'HTTP '.$response->status().' - blocked by United Payment firewall (support ID: '.($match[1] ?? '?').')';
+        }
+
         $message = $response->json('message') ?? $response->json('title') ?? 'Unknown error';
 
         return 'HTTP '.$response->status().' - '.$message;
