@@ -81,7 +81,8 @@ class UnitedPaymentService
         return Http::baseUrl($this->baseUrl())
             ->acceptJson()
             ->asJson()
-            ->timeout(20)
+            // Provayderin checkout cavabı bəzən 5–10 san çəkir; 20 san limit vaxtaşırı 502 verirdi
+            ->timeout(45)
             ->connectTimeout(10)
             ->withHeaders(['x-auth-token' => $this->token($freshToken)]);
     }
