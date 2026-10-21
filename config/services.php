@@ -40,8 +40,12 @@ return [
         'email' => env('UNITEDPAYMENT_EMAIL'),
         'password' => env('UNITEDPAYMENT_PASSWORD'),
         'partner_id' => env('UNITEDPAYMENT_PARTNER_ID'),
-        // Ödəniş səhifəsində Apple Pay / Google Pay düymələri (Checkout API-nin `applePay` sahəsi)
-        'wallets' => (bool) env('UNITEDPAYMENT_WALLETS', true),
+        // Ödəniş səhifəsində Apple Pay / Google Pay düymələri (Checkout API-nin `applePay` sahəsi).
+        // United Payment hesabda aktivləşdirməyincə söndürülü qalmalıdır.
+        'wallets' => (bool) env('UNITEDPAYMENT_WALLETS', false),
+        // Webhook United Payment ilə razılaşdırılmayınca göndərilmir — əks halda checkout firewall-da bloklanır.
+        // Webhook-suz da ödəniş statusu müştəri qayıdanda API-dən yoxlanılır (PaymentService::settle).
+        'webhook' => (bool) env('UNITEDPAYMENT_WEBHOOK', false),
     ],
 
     'telegram' => [

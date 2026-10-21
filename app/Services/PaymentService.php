@@ -193,7 +193,7 @@ class PaymentService
             $payload['partnerId'] = (string) config('services.unitedpayment.partner_id');
         }
 
-        if (str_starts_with((string) config('app.url'), 'https://')) {
+        if (config('services.unitedpayment.webhook') && str_starts_with((string) config('app.url'), 'https://')) {
             $payload['webhookUrl'] = route('payments.united.webhook');
         }
 
