@@ -172,6 +172,7 @@ class PaymentService
             'clientOrderId' => $clientOrderId,
             'currency' => 'AZN',
             'description' => 'Zirelly sifariş #'.$order->id,
+            'applePay' => (bool) config('services.unitedpayment.wallets'),
         ];
 
         if (filled($user?->email)) {

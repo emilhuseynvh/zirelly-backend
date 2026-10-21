@@ -40,6 +40,8 @@ return [
         'email' => env('UNITEDPAYMENT_EMAIL'),
         'password' => env('UNITEDPAYMENT_PASSWORD'),
         'partner_id' => env('UNITEDPAYMENT_PARTNER_ID'),
+        // Ödəniş səhifəsində Apple Pay / Google Pay düymələri (Checkout API-nin `applePay` sahəsi)
+        'wallets' => (bool) env('UNITEDPAYMENT_WALLETS', true),
     ],
 
     'telegram' => [
